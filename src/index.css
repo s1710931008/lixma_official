@@ -1,0 +1,50 @@
+/* Reset */
+*,
+*::before,
+*::after {
+    box-sizing: border-box;
+    margin: 0;
+    padding: 0;
+}
+
+/* 基本設定 */
+html,
+body,
+#root {
+    height: 100%;
+}
+
+body {
+    font-family: "Roboto", "Noto Sans TC", sans-serif;
+    line-height: 1.6;
+    background-color: #ffffff;
+    /* 深色背景 */
+    color: #000000;
+    -webkit-font-smoothing: antialiased;
+}
+
+/* 圖片 */
+img {
+    max-width: 100%;
+    display: block;
+}
+
+/* a */
+a {
+    text-decoration: none;
+    color: inherit;
+}
+
+/* button */
+button {
+    font-family: inherit;
+    cursor: pointer;
+    border: none;
+}
+
+/* 🔥 全域變數（你現在有用到） */
+:root {
+    --green: #2ecc71;
+    --gold: #f5c76b;
+    --text-muted: rgba(255, 255, 255, 0.6);
+}
