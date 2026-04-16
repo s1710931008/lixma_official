@@ -31,7 +31,7 @@ export default function Nav() {
         { name: t("nav.about"), path: "/about" },
         { name: t("nav.news"), path: "/news" },
         { name: t("nav.projects"), path: "/projects" },
-        { name: t("nav.videos"), path: "/videos" }
+        { name: t("nav.contact"), path: "/contact" }
     ];
 
     return (
