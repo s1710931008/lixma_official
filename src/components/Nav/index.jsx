@@ -10,20 +10,34 @@ import List from "@mui/material/List";
 import ListItem from "@mui/material/ListItem";
 import ListItemButton from "@mui/material/ListItemButton";
 import ListItemText from "@mui/material/ListItemText";
+import FormControl from "@mui/material/FormControl";
+import Select from "@mui/material/Select";
+import MenuItem from "@mui/material/MenuItem";
 import MenuIcon from "@mui/icons-material/Menu";
+import TranslateIcon from "@mui/icons-material/Translate";
 
 import { Link, useLocation } from "react-router-dom";
 import { useTranslation } from "react-i18next";
+
+const languages = [
+    { value: "tw", label: "中文" },
+    { value: "en", label: "EN" },
+];
 
 export default function Nav() {
     const location = useLocation();
     const { t, i18n } = useTranslation();
 
     const [open, setOpen] = useState(false);
+    const currentLang = i18n.resolvedLanguage || i18n.language || "tw";
 
     const changeLang = (lang) => {
         i18n.changeLanguage(lang);
         localStorage.setItem("lang", lang);
+    };
+
+    const handleLanguageChange = (event) => {
+        changeLang(event.target.value);
     };
 
     const menus = [
@@ -31,7 +45,7 @@ export default function Nav() {
         { name: t("nav.about"), path: "/about" },
         { name: t("nav.news"), path: "/news" },
         { name: t("nav.projects"), path: "/projects" },
-        { name: t("nav.contact"), path: "/contact" }
+        { name: t("nav.contact"), path: "/contact" },
     ];
 
     return (
@@ -42,7 +56,6 @@ export default function Nav() {
                         LIXMA
                     </Typography>
 
-                    {/* 桌機版 */}
                     <Box
                         sx={{
                             display: { xs: "none", md: "flex" },
@@ -64,15 +77,40 @@ export default function Nav() {
                             </Button>
                         ))}
 
-                        <Button onClick={() => changeLang("tw")} color="inherit">
-                            中文
-                        </Button>
-                        <Button onClick={() => changeLang("en")} color="inherit">
-                            EN
-                        </Button>
+                        <Box sx={{ display: "flex", alignItems: "center", gap: 0.75, ml: 1 }}>
+                            <TranslateIcon fontSize="small" />
+                            <FormControl size="small" sx={{ minWidth: 92 }}>
+                                <Select
+                                    value={currentLang}
+                                    onChange={handleLanguageChange}
+                                    displayEmpty
+                                    sx={{
+                                        color: "inherit",
+                                        height: 36,
+                                        ".MuiOutlinedInput-notchedOutline": {
+                                            borderColor: "rgba(255, 255, 255, 0.45)",
+                                        },
+                                        "&:hover .MuiOutlinedInput-notchedOutline": {
+                                            borderColor: "rgba(255, 255, 255, 0.75)",
+                                        },
+                                        "&.Mui-focused .MuiOutlinedInput-notchedOutline": {
+                                            borderColor: "#ffffff",
+                                        },
+                                        ".MuiSvgIcon-root": {
+                                            color: "inherit",
+                                        },
+                                    }}
+                                >
+                                    {languages.map((language) => (
+                                        <MenuItem key={language.value} value={language.value}>
+                                            {language.label}
+                                        </MenuItem>
+                                    ))}
+                                </Select>
+                            </FormControl>
+                        </Box>
                     </Box>
 
-                    {/* 手機版 ☰ */}
                     <IconButton
                         color="inherit"
                         sx={{ display: { xs: "block", md: "none" } }}
@@ -83,7 +121,6 @@ export default function Nav() {
                 </Toolbar>
             </AppBar>
 
-            {/* Drawer 手機選單 */}
             <Drawer anchor="right" open={open} onClose={() => setOpen(false)}>
                 <Box sx={{ width: 250 }}>
                     <List>
@@ -99,15 +136,20 @@ export default function Nav() {
                             </ListItem>
                         ))}
 
-                        <ListItem>
-                            <Button fullWidth onClick={() => changeLang("tw")}>
-                                中文
-                            </Button>
-                        </ListItem>
-                        <ListItem>
-                            <Button fullWidth onClick={() => changeLang("en")}>
-                                EN
-                            </Button>
+                        <ListItem sx={{ gap: 1 }}>
+                            <TranslateIcon color="action" fontSize="small" />
+                            <FormControl fullWidth size="small">
+                                <Select
+                                    value={currentLang}
+                                    onChange={handleLanguageChange}
+                                >
+                                    {languages.map((language) => (
+                                        <MenuItem key={language.value} value={language.value}>
+                                            {language.label}
+                                        </MenuItem>
+                                    ))}
+                                </Select>
+                            </FormControl>
                         </ListItem>
                     </List>
                 </Box>
