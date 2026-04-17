@@ -12,33 +12,33 @@ import AutoAwesomeIcon from "@mui/icons-material/AutoAwesome";
 
 import "./Home.css";
 
-/* 👇 捲動動畫元件 */
+/* 👇 捲動動畫元件 <Reveal delay={200}> */
 function Reveal({ children, delay = 0 }) {
     const ref = useRef(null);
-    const [visible, setVisible] = useState(false);
+    const [visible, setVisible] = useState(false); //一開始是false，還沒進入畫面
 
     useEffect(() => {
-        const observer = new IntersectionObserver(
-            ([entry]) => {
-                if (entry.isIntersecting) {
-                    setVisible(true);
+        const observer = new IntersectionObserver( //監聽元素有沒有出現在畫面裡
+            ([entry]) => { //entry就是被監聽的元素
+                if (entry.isIntersecting) { //是否進入可視區
+                    setVisible(true); //如果是，就變成true，加上is-visible這個class
                 }
             },
-            { threshold: 0.2 }
+            { threshold: 0.2 } //0.2代表當元素有20%進入畫面時，就觸發
         );
 
-        if (ref.current) observer.observe(ref.current);
+        if (ref.current) observer.observe(ref.current); //開始監聽
 
-        return () => observer.disconnect();
+        return () => observer.disconnect(); //停止監聽
     }, []);
 
     return (
         <div
-            ref={ref}
-            className={`reveal ${visible ? "is-visible" : ""}`}
-            style={{ transitionDelay: `${delay}ms` }}
+            ref={ref} //把這個div掛到ref上，讓observer可以監聽
+            className={`reveal ${visible ? "is-visible" : ""}`} //如果visible是true，就加上is-visible這個class
+            style={{ transitionDelay: `${delay}ms` }} //延遲時間
         >
-            {children}
+            {children} {/* 傳進來的東西 */}
         </div>
     );
 }

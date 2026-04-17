@@ -1,27 +1,162 @@
+import { useEffect, useRef, useState } from "react";
 import Box from "@mui/material/Box";
 import Container from "@mui/material/Container";
 import Typography from "@mui/material/Typography";
+import Button from "@mui/material/Button";
+
+import BoltRoundedIcon from "@mui/icons-material/BoltRounded";
+import SolarPowerRoundedIcon from "@mui/icons-material/SolarPowerRounded";
+import MonitorRoundedIcon from "@mui/icons-material/MonitorRounded";
+import WorkspacePremiumRoundedIcon from "@mui/icons-material/WorkspacePremiumRounded";
+import EmojiObjectsRoundedIcon from "@mui/icons-material/EmojiObjectsRounded";
+import PrecisionManufacturingRoundedIcon from "@mui/icons-material/PrecisionManufacturingRounded";
+import ArrowForwardRoundedIcon from "@mui/icons-material/ArrowForwardRounded";
+import VerifiedRoundedIcon from "@mui/icons-material/VerifiedRounded";
+import TrendingUpRoundedIcon from "@mui/icons-material/TrendingUpRounded";
+import ShieldRoundedIcon from "@mui/icons-material/ShieldRounded";
+
 import "./About.css";
 
 const historyData = [
-    { year: "2003", text: "公司成立，首次導入T5螢光燈具" },
-    { year: "2004", text: "自行研發LED燈具並導入市場" },
+    { year: "2003", text: "公司成立，首次導入 T5 螢光燈具" },
+    { year: "2004", text: "自行研發 LED 燈具並導入市場" },
     { year: "2005", text: "投入太陽能產業" },
     { year: "2013", text: "研發感應燈控" },
     { year: "2015", text: "開發完成節能自動控制系統" },
-    { year: "2016", text: "獲得BIPV太陽能導水型支架發明專利" },
+    { year: "2016", text: "獲得 BIPV 太陽能導水型支架發明專利" },
     { year: "2017", text: "完成屏東監獄太陽能案場建置" },
     { year: "2018", text: "完成雲林、嘉義監獄太陽能案場建置" },
-    { year: "2021", text: "🏆 雲林監獄獲得光鐸獎" },
-    { year: "2023", text: "🏆 金城國中獲得光鐸獎" },
+    { year: "2021", text: "雲林監獄獲得光鐸獎" },
+    { year: "2023", text: "金城國中獲得光鐸獎" },
     { year: "2024", text: "獲得多國太陽能防災專利" },
 ];
 
+const valueData = [
+    {
+        icon: <BoltRoundedIcon fontSize="inherit" />,
+        title: "有效利用能源",
+        text: "整合 LED 照明、智能控制與節能系統，協助場域提升能源使用效率。"
+    },
+    {
+        icon: <SolarPowerRoundedIcon fontSize="inherit" />,
+        title: "開發再生能源",
+        text: "提供太陽能系統規劃、設計施工與維運管理，打造穩定綠能方案。"
+    },
+    {
+        icon: <MonitorRoundedIcon fontSize="inherit" />,
+        title: "智慧雲平台",
+        text: "透過監控平台與數據管理，即時掌握設備狀態與營運表現。"
+    }
+];
+
+const serviceData = [
+    {
+        icon: <SolarPowerRoundedIcon fontSize="inherit" />,
+        title: "太陽能系統",
+        items: ["市電併聯系統", "自發自用系統", "BIPV 系統應用"]
+    },
+    {
+        icon: <TrendingUpRoundedIcon fontSize="inherit" />,
+        title: "太陽能投資",
+        items: ["電廠投資規劃", "土地開發評估"]
+    },
+    {
+        icon: <MonitorRoundedIcon fontSize="inherit" />,
+        title: "監控系統",
+        items: ["雲端監控平台", "維運管理系統"]
+    },
+    {
+        icon: <ShieldRoundedIcon fontSize="inherit" />,
+        title: "防災系統",
+        items: ["快速關斷機制", "異常自動檢測"]
+    }
+];
+
+/* 👇 捲動動畫元件 */
+function Reveal({ children, delay = 0 }) {
+    const ref = useRef(null);
+    const [visible, setVisible] = useState(false);
+
+    useEffect(() => {
+        const observer = new IntersectionObserver(
+            ([entry]) => {
+                if (entry.isIntersecting) {
+                    setVisible(true);
+                }
+            },
+            { threshold: 0.2 }
+        );
+
+        if (ref.current) observer.observe(ref.current);
+
+        return () => observer.disconnect();
+    }, []);
+
+    return (
+        <div
+            ref={ref}
+            className={`reveal ${visible ? "is-visible" : ""}`}
+            style={{ transitionDelay: `${delay}ms` }}
+        >
+            {children}
+        </div>
+    );
+}
+
 export default function About() {
+    const sortedHistoryData = [...historyData].sort(
+        (a, b) => Number(b.year) - Number(a.year)
+    );
+
     return (
         <Box className="about-page">
             <Box className="about-hero">
-                <Typography className="about-hero-title">關於我們</Typography>
+                <Box className="about-hero-overlay" />
+                <Container maxWidth="lg" className="about-hero-container">
+                    <Reveal>
+                        <Box className="about-hero-content">
+                            <Typography className="about-hero-kicker">
+                                LIXMA TECH
+                            </Typography>
+
+                            <Typography className="about-hero-title">
+                                關於我們
+                            </Typography>
+
+                            <Typography className="about-hero-desc">
+                                以能源科技為核心，整合節能、太陽能與智慧監控，
+                                持續為企業與公共場域打造更穩定、更安全、更永續的解決方案。
+                            </Typography>
+
+                            <Box className="about-hero-actions">
+                                <Button
+                                    variant="contained"
+                                    endIcon={<ArrowForwardRoundedIcon />}
+                                    className="about-hero-btn primary"
+                                    onClick={() => {
+                                        document
+                                            .querySelector(".services-section")
+                                            ?.scrollIntoView({ behavior: "smooth" });
+                                    }}
+                                >
+                                    了解服務
+                                </Button>
+
+                                <Button
+                                    variant="outlined"
+                                    className="about-hero-btn secondary"
+                                    onClick={() => {
+                                        document
+                                            .querySelector(".timeline-section")
+                                            ?.scrollIntoView({ behavior: "smooth" });
+                                    }}
+                                >
+                                    發展歷程
+                                </Button>
+                            </Box>
+                        </Box>
+                    </Reveal>
+                </Container>
             </Box>
 
             <Box className="about-breadcrumb-wrap">
@@ -36,99 +171,178 @@ export default function About() {
 
             <Container maxWidth="lg">
                 <main className="main-content">
-                    <section className="intro-section">
-                        <div className="intro-quote">
-                            "有效利用能源，開發再生能源"
-                        </div>
-                        <p className="intro-text">
-                            力瑪科技以此理念創立於 2003年
-                        </p>
+                    <Reveal>
+                        <section className="intro-section">
+                            <div className="intro-badge">
+                                <WorkspacePremiumRoundedIcon />
+                                <span>專業綠能整合品牌</span>
+                            </div>
+
+                            <div className="intro-quote">
+                                「有效利用能源，開發再生能源」
+                            </div>
+
+                            <p className="intro-text">
+                                力瑪科技創立於 2003 年，持續深耕節能照明、太陽能應用、
+                                智慧監控與防災系統，從規劃、施工到維運，提供完整且可靠的整合服務。
+                            </p>
+                        </section>
+                    </Reveal>
+
+                    <section className="about-stats-section">
+                        <Reveal delay={100}>
+                            <div className="about-stat-card">
+                                <div className="about-stat-icon">
+                                    <VerifiedRoundedIcon />
+                                </div>
+                                <h3>20+</h3>
+                                <p>年以上產業經驗</p>
+                            </div>
+                        </Reveal>
+
+                        <Reveal delay={200}>
+                            <div className="about-stat-card">
+                                <div className="about-stat-icon">
+                                    <SolarPowerRoundedIcon />
+                                </div>
+                                <h3>多元</h3>
+                                <p>綠能系統整合能力</p>
+                            </div>
+                        </Reveal>
+
+                        <Reveal delay={300}>
+                            <div className="about-stat-card">
+                                <div className="about-stat-icon">
+                                    <WorkspacePremiumRoundedIcon />
+                                </div>
+                                <h3>多項</h3>
+                                <p>專利與獎項肯定</p>
+                            </div>
+                        </Reveal>
+
+                        <Reveal delay={400}>
+                            <div className="about-stat-card">
+                                <div className="about-stat-icon">
+                                    <MonitorRoundedIcon />
+                                </div>
+                                <h3>完整</h3>
+                                <p>監控與維運平台服務</p>
+                            </div>
+                        </Reveal>
                     </section>
 
-                    <section className="timeline-section">
-                        <h2 className="timeline-main-title">發展歷程</h2>
-
-                        <div className="timeline-vertical">
-                            {historyData.map((item, index) => (
-                                <div
-                                    className={`timeline-row ${index % 2 === 0 ? "right" : "left"}`}
-                                    key={item.year + item.text}
-                                >
-                                    <div className="timeline-side timeline-year-side">
-                                        <div className="timeline-year">{item.year}</div>
-                                    </div>
-
-                                    <div className="timeline-center">
-                                        <span className="timeline-dot" />
-                                    </div>
-
-                                    <div className="timeline-side timeline-card-side">
-                                        <div className="timeline-card">
-                                            {item.text}
-                                        </div>
-                                    </div>
+                    <Reveal>
+                        <section className="timeline-section">
+                            <div className="section-header center">
+                                <div className="section-chip">
+                                    <EmojiObjectsRoundedIcon />
+                                    <span>Company Journey</span>
                                 </div>
+
+                                <h2 className="timeline-main-title">發展歷程</h2>
+
+                                <p className="section-desc">
+                                    從節能照明起步，延伸至太陽能、智慧控制與防災系統，
+                                    持續累積技術實力與案場經驗。
+                                </p>
+                            </div>
+
+                            <div className="timeline-vertical">
+                                {sortedHistoryData.map((item, index) => (
+                                    <Reveal key={item.year + item.text} delay={index * 80}>
+                                        <div
+                                            className={`timeline-row ${index % 2 === 0 ? "right" : "left"}`}
+                                        >
+                                            <div className="timeline-col timeline-col-left">
+                                                {index % 2 !== 0 && (
+                                                    <div className="timeline-card">
+                                                        <div className="timeline-card-icon">
+                                                            <PrecisionManufacturingRoundedIcon />
+                                                        </div>
+                                                        <div className="timeline-card-text">
+                                                            {item.text}
+                                                        </div>
+                                                    </div>
+                                                )}
+                                            </div>
+
+                                            <div className="timeline-col timeline-col-right">
+                                                {index % 2 === 0 && (
+                                                    <div className="timeline-card">
+                                                        <div className="timeline-card-icon">
+                                                            <PrecisionManufacturingRoundedIcon />
+                                                        </div>
+                                                        <div className="timeline-card-text">
+                                                            {item.text}
+                                                        </div>
+                                                    </div>
+                                                )}
+                                            </div>
+
+                                            <div className={`timeline-year timeline-year-${index % 2 === 0 ? "left" : "right"}`}>
+                                                {item.year}
+                                            </div>
+
+                                            <span className="timeline-dot" />
+                                        </div>
+                                    </Reveal>
+                                ))}
+                            </div>
+                        </section>
+                    </Reveal>
+
+                    <section className="core-values">
+                        <Reveal>
+                            <div className="section-header">
+                                <div className="section-chip">
+                                    <BoltRoundedIcon />
+                                    <span>Core Value</span>
+                                </div>
+                                <h2 className="section-title">核心價值</h2>
+                            </div>
+                        </Reveal>
+
+                        <div className="values-grid">
+                            {valueData.map((item, index) => (
+                                <Reveal key={item.title} delay={index * 120}>
+                                    <div className="value-card">
+                                        <div className="value-icon">{item.icon}</div>
+                                        <h3>{item.title}</h3>
+                                        <p>{item.text}</p>
+                                    </div>
+                                </Reveal>
                             ))}
                         </div>
                     </section>
 
-                    <section className="core-values">
-                        <h2 className="section-title">核心價值</h2>
-
-                        <div className="values-grid">
-                            <div className="value-card">
-                                <h3>有效利用能源</h3>
-                                <p>LED照明 / 智能控制 / 節能系統</p>
-                            </div>
-
-                            <div className="value-card">
-                                <h3>開發再生能源</h3>
-                                <p>太陽能系統 / 設計施工 / 維運</p>
-                            </div>
-
-                            <div className="value-card">
-                                <h3>智慧雲平台</h3>
-                                <p>監控系統 / 節能平台</p>
-                            </div>
-                        </div>
-                    </section>
-
                     <section className="services-section">
-                        <h2 className="section-title">服務項目</h2>
+                        <Reveal>
+                            <div className="section-header">
+                                <div className="section-chip">
+                                    <MonitorRoundedIcon />
+                                    <span>Service</span>
+                                </div>
+                                <h2 className="section-title">服務項目</h2>
+                            </div>
+                        </Reveal>
 
                         <div className="services-grid">
-                            <div className="service-card">
-                                <h3>太陽能系統</h3>
-                                <ul>
-                                    <li>市電併聯</li>
-                                    <li>自發自用</li>
-                                    <li>BIPV系統</li>
-                                </ul>
-                            </div>
+                            {serviceData.map((item, index) => (
+                                <Reveal key={item.title} delay={index * 100}>
+                                    <div className="service-card">
+                                        <div className="service-top">
+                                            <div className="service-icon">{item.icon}</div>
+                                            <h3>{item.title}</h3>
+                                        </div>
 
-                            <div className="service-card">
-                                <h3>太陽能投資</h3>
-                                <ul>
-                                    <li>電廠投資</li>
-                                    <li>土地開發</li>
-                                </ul>
-                            </div>
-
-                            <div className="service-card">
-                                <h3>監控系統</h3>
-                                <ul>
-                                    <li>雲端監控</li>
-                                    <li>維運系統</li>
-                                </ul>
-                            </div>
-
-                            <div className="service-card">
-                                <h3>防災系統</h3>
-                                <ul>
-                                    <li>快速關斷</li>
-                                    <li>自動檢測</li>
-                                </ul>
-                            </div>
+                                        <ul>
+                                            {item.items.map((serviceItem) => (
+                                                <li key={serviceItem}>{serviceItem}</li>
+                                            ))}
+                                        </ul>
+                                    </div>
+                                </Reveal>
+                            ))}
                         </div>
                     </section>
                 </main>
