@@ -46,6 +46,7 @@ export default function Nav() {
         { name: t("nav.news"), path: "/news" },
         { name: t("nav.projects"), path: "/projects" },
         { name: t("nav.contact"), path: "/contact" },
+        { name: t("nav.solar-calculator"), path: "/solar-calculator" },
     ];
 
     return (

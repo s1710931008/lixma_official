@@ -7,6 +7,7 @@ import NewsDetail from "../pages/News/NewsDetail";
 import About from "../pages/About";
 import Projects from "../pages/Projects";
 import Contact from "../pages/Contact";
+import SolarCalculator from "../pages/SolarCalculator";
 
 // 路由表（可擴充）
 const routes = [
@@ -16,6 +17,7 @@ const routes = [
     { path: "/about", element: <About /> },
     { path: "/projects", element: <Projects /> },
     { path: "/contact", element: <Contact /> },
+    { path: "/solar-calculator", element: <SolarCalculator /> },
 ];
 
 export default function AppRoutes() {
