@@ -5,6 +5,8 @@
   "type": "module",
   "scripts": {
     "dev": "vite",
+    "api": "node src/api/newserver.js",
+    "seed:news": "node src/api/seedNewsData.js",
     "build": "vite build",
     "lint": "eslint .",
     "preview": "vite preview"
@@ -17,6 +19,7 @@
     "@mui/x-data-grid": "^9.0.1",
     "ag-grid-community": "^35.2.1",
     "ag-grid-react": "^35.2.1",
+    "better-sqlite3": "^12.9.0",
     "cors": "^2.8.6",
     "express": "^5.2.1",
     "i18next": "^26.0.4",

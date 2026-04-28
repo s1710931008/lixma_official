@@ -1,4 +1,21 @@
 
+# 基本架構
+```
+├── node_modules/            # 專案依賴套件
+├── public/                 # 公開檔案（index.html、favicon 等）
+├── src/
+│   ├── api/                 # API 串接與管理（若有）
+│   ├── assets/              # 靜態資源（圖片、字體）
+│   ├── components/          # 可重複使用的 UI 組件
+│   ├── lang/                # 語系
+│   ├── pages/               # 頁面級組件（Home、News、Project 等）
+│   └── App.jsx              # 主應用程式組件
+├── .gitignore               # Git 忽略檔案設定
+├── index.html               # 應用程式入口
+├── package.json             # 專案依賴與指令設定
+└── vite.config.js           # Vite 設定檔
+````
+---
 …or create a new repository on the command line
 echo "# lixma_official" >> README.md
 git init

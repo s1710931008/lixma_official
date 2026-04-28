@@ -135,8 +135,19 @@
 }
 
 .award-icon {
-    font-size: 48px;
+    width: 64px;
+    height: 64px;
     flex-shrink: 0;
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    border-radius: 18px;
+    background: rgba(255, 255, 255, 0.16);
+    color: #ffffff;
+}
+
+.award-icon svg {
+    display: block;
 }
 
 .award-text h3 {
@@ -431,7 +442,8 @@
     }
 
     .award-icon {
-        font-size: 40px;
+        width: 56px;
+        height: 56px;
     }
 
     .article-content h2 {
