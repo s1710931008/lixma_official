@@ -1,3 +1,4 @@
+import axios from "axios";
 import { useEffect, useMemo, useState } from "react";
 import { Link } from "react-router-dom";
 import Box from "@mui/material/Box";
@@ -32,15 +33,11 @@ export default function News() {
     useEffect(() => {
         async function fetchList(url, fallback, setter) {
             try {
-                const res = await fetch(url);
+                const res = await axios.get(url);
 
-                if (!res.ok) {
-                    throw new Error("Failed to fetch list");
-                }
-
-                const data = await res.json();
-                setter(Array.isArray(data) ? data : fallback);
-            } catch {
+                setter(Array.isArray(res.data) ? res.data : fallback);
+            } catch (error) {
+                console.error("API Error:", error);
                 setter(fallback);
             }
         }
@@ -50,7 +47,12 @@ export default function News() {
     }, []);
 
     const currentSource = activeTab === "news" ? apiNewsData : apiMediaData;
-    const currentYears = useMemo(() => getYears(currentSource), [currentSource]);
+
+    const currentYears = useMemo(
+        () => getYears(currentSource),
+        [currentSource]
+    );
+
     const archiveYears = useMemo(
         () => getYears([...apiNewsData, ...apiMediaData]),
         [apiNewsData, apiMediaData]
@@ -91,16 +93,16 @@ export default function News() {
         <Box className="news-page">
             <Box className="news-hero">
                 <Typography className="news-hero-title">
-                    {"\u6700\u65b0\u6d88\u606f"}
+                    最新消息
                 </Typography>
             </Box>
 
             <Box className="news-breadcrumb-wrap">
                 <Container maxWidth="lg">
                     <Box className="news-breadcrumb">
-                        <Link to="/">{"\u9996\u9801"}</Link>
+                        <Link to="/">首頁</Link>
                         <span>/</span>
-                        <span>{"\u6700\u65b0\u6d88\u606f"}</span>
+                        <span>最新消息</span>
                     </Box>
                 </Container>
             </Box>
@@ -116,9 +118,8 @@ export default function News() {
                             {archiveYears.map((year) => (
                                 <button
                                     key={year}
-                                    className={`archive-item ${
-                                        activeYear === year ? "active" : ""
-                                    }`}
+                                    className={`archive-item ${activeYear === year ? "active" : ""
+                                        }`}
                                     onClick={() => handleYearChange(year)}
                                 >
                                     {year}
@@ -130,26 +131,25 @@ export default function News() {
                     <Box className="news-main">
                         <Box className="news-tabs">
                             <button
-                                className={`news-tab ${
-                                    activeTab === "news" ? "active" : ""
-                                }`}
+                                className={`news-tab ${activeTab === "news" ? "active" : ""
+                                    }`}
                                 onClick={() => handleTabChange("news")}
                             >
-                                {"\u6700\u65b0\u6d88\u606f"}
+                                最新消息
                             </button>
+
                             <button
-                                className={`news-tab ${
-                                    activeTab === "media" ? "active" : ""
-                                }`}
+                                className={`news-tab ${activeTab === "media" ? "active" : ""
+                                    }`}
                                 onClick={() => handleTabChange("media")}
                             >
-                                {"\u5a92\u9ad4\u5831\u5c0e"}
+                                媒體報導
                             </button>
                         </Box>
 
                         <Box className="news-table-head">
-                            <span>{"\u6a19\u984c"}</span>
-                            <span>{"\u65e5\u671f"}</span>
+                            <span>標題</span>
+                            <span>日期</span>
                         </Box>
 
                         <Box className="news-list">
@@ -164,7 +164,7 @@ export default function News() {
 
                                                 {item.award && (
                                                     <span className="award-badge">
-                                                        {"\u7372\u734e"}
+                                                        獲獎
                                                     </span>
                                                 )}
                                             </Box>
@@ -176,24 +176,20 @@ export default function News() {
                                     );
 
                                     if (activeTab === "media") {
-                                        if (item.url) {
-                                            return (
-                                                <a
-                                                    className="news-card"
-                                                    href={item.url}
-                                                    target="_blank"
-                                                    rel="noreferrer"
-                                                    key={`${activeTab}-${item.id || index}`}
-                                                >
-                                                    {content}
-                                                </a>
-                                            );
-                                        }
-
-                                        return (
-                                            <div
-                                                className="news-card"
+                                        return item.url ? (
+                                            <a
                                                 key={`${activeTab}-${item.id || index}`}
+                                                className="news-card"
+                                                href={item.url}
+                                                target="_blank"
+                                                rel="noreferrer"
+                                            >
+                                                {content}
+                                            </a>
+                                        ) : (
+                                            <div
+                                                key={`${activeTab}-${item.id || index}`}
+                                                className="news-card"
                                             >
                                                 {content}
                                             </div>
@@ -202,9 +198,9 @@ export default function News() {
 
                                     return (
                                         <Link
+                                            key={`${activeTab}-${item.id}`}
                                             to={`/news/${item.id}`}
                                             className="news-card"
-                                            key={`${activeTab}-${item.id}`}
                                         >
                                             {content}
                                         </Link>
@@ -212,7 +208,7 @@ export default function News() {
                                 })
                             ) : (
                                 <Box className="news-empty">
-                                    {"\u76ee\u524d\u6c92\u6709\u8cc7\u6599"}
+                                    目前沒有資料
                                 </Box>
                             )}
                         </Box>

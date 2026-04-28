@@ -7,7 +7,7 @@ import Typography from "@mui/material/Typography";
 import "./NewsDetail.css";
 import { newsData } from "../../data/newsData";
 
-const API_BASE = "http://localhost:3000/api/admin/news";
+const API_BASE = "http://localhost:3000/api/news";
 
 export default function NewsDetail() {
     const { id } = useParams();
@@ -21,18 +21,25 @@ export default function NewsDetail() {
     );
 
     const [apiPage, setApiPage] = useState(null);
-    const [loading, setLoading] = useState(true);
+    const [loading, setLoading] = useState(!localPage);
     const [error, setError] = useState("");
 
     useEffect(() => {
         let active = true;
 
         async function fetchPage() {
-            setLoading(true);
+            const controller = new AbortController();
+            const timeoutId = window.setTimeout(() => {
+                controller.abort();
+            }, 5000);
+
+            setLoading(!localPage);
             setError("");
 
             try {
-                const res = await fetch(`${API_BASE}/${id}`);
+                const res = await fetch(`${API_BASE}/${id}`, {
+                    signal: controller.signal
+                });
 
                 if (!res.ok) {
                     throw new Error("Failed to fetch news");
@@ -49,6 +56,8 @@ export default function NewsDetail() {
                     setApiPage(null);
                 }
             } finally {
+                window.clearTimeout(timeoutId);
+
                 if (active) {
                     setLoading(false);
                 }
