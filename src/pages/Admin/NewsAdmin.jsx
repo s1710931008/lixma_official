@@ -1,5 +1,5 @@
 import { useEffect, useMemo, useState } from "react";
-import { Link } from "react-router-dom";
+import { Link, useNavigate } from "react-router-dom";
 import Box from "@mui/material/Box";
 import Button from "@mui/material/Button";
 import Chip from "@mui/material/Chip";
@@ -11,12 +11,14 @@ import {
     mediaData as localMediaData,
     newsData as localNewsData
 } from "../../data/newsData";
+import { adminFetch, clearAdminToken } from "../../utils/adminAuth";
 
 const API_BASE = "http://localhost:3000/api/admin/news";
 const MEDIA_API_BASE = "http://localhost:3000/api/admin/media";
 const PAGE_SIZE = 5;
 
 export default function NewsAdmin() {
+    const navigate = useNavigate();
     const [activeTab, setActiveTab] = useState("news");
     const [newsList, setNewsList] = useState([]);
     const [mediaList, setMediaList] = useState([]);
@@ -35,7 +37,7 @@ export default function NewsAdmin() {
         setUsingLocalData(false);
 
         try {
-            const res = await fetch(API_BASE);
+            const res = await adminFetch(API_BASE);
 
             if (!res.ok) {
                 throw new Error("取得最新消息失敗");
@@ -43,7 +45,7 @@ export default function NewsAdmin() {
 
             const data = await res.json();
             setNewsList(Array.isArray(data) ? data : data.items ?? []);
-        } catch (err) {
+        } catch {
             setError("");
             setNewsList(localNewsData);
             setUsingLocalData(true);
@@ -56,7 +58,7 @@ export default function NewsAdmin() {
         setMediaLoading(true);
 
         try {
-            const res = await fetch(MEDIA_API_BASE);
+            const res = await adminFetch(MEDIA_API_BASE);
 
             if (!res.ok) {
                 throw new Error("取得媒體報導失敗");
@@ -64,7 +66,7 @@ export default function NewsAdmin() {
 
             const data = await res.json();
             setMediaList(Array.isArray(data) ? data : data.items ?? []);
-        } catch (err) {
+        } catch {
             setMediaList(localMediaData);
         } finally {
             setMediaLoading(false);
@@ -82,7 +84,7 @@ export default function NewsAdmin() {
         if (!confirmed) return;
 
         try {
-            const res = await fetch(`${API_BASE}/${id}`, {
+            const res = await adminFetch(`${API_BASE}/${id}`, {
                 method: "DELETE"
             });
 
@@ -102,7 +104,7 @@ export default function NewsAdmin() {
         if (!confirmed) return;
 
         try {
-            const res = await fetch(`${MEDIA_API_BASE}/${id}`, {
+            const res = await adminFetch(`${MEDIA_API_BASE}/${id}`, {
                 method: "DELETE"
             });
 
@@ -161,6 +163,11 @@ export default function NewsAdmin() {
         }));
     }
 
+    function handleLogout() {
+        clearAdminToken();
+        navigate("/admin/login", { replace: true });
+    }
+
     return (
         <Container maxWidth="lg">
             <Box sx={{ py: 5 }}>
@@ -184,6 +191,10 @@ export default function NewsAdmin() {
                     </Box>
 
                     <Stack direction="row" spacing={1}>
+                        <Button variant="text" onClick={handleLogout}>
+                            登出
+                        </Button>
+
                         {activeTab === "news" && (
                             <>
                                 <Button variant="outlined" onClick={fetchNews}>

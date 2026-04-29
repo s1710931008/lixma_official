@@ -8,6 +8,7 @@ import Stack from "@mui/material/Stack";
 import TextField from "@mui/material/TextField";
 import Typography from "@mui/material/Typography";
 import { mediaData as localMediaData } from "../../data/newsData";
+import { adminFetch } from "../../utils/adminAuth";
 
 const API_BASE = "http://localhost:3000/api/admin/media";
 
@@ -76,7 +77,7 @@ export default function MediaForm() {
             setMessage("");
 
             try {
-                const res = await fetch(`${API_BASE}/${id}`);
+                const res = await adminFetch(`${API_BASE}/${id}`);
 
                 if (!res.ok) {
                     throw new Error("取得媒體報導失敗");
@@ -114,7 +115,7 @@ export default function MediaForm() {
                 year: form.year || String(form.date || "").slice(0, 4)
             };
 
-            const res = await fetch(
+            const res = await adminFetch(
                 isEdit ? `${API_BASE}/${id}` : API_BASE,
                 {
                     method: isEdit ? "PUT" : "POST",

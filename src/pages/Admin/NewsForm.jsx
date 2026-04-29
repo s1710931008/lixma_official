@@ -14,6 +14,7 @@ import TextField from "@mui/material/TextField";
 import Typography from "@mui/material/Typography";
 import { Plus, Trash2, Upload } from "lucide-react";
 import { newsData as localNewsData } from "../../data/newsData";
+import { adminFetch } from "../../utils/adminAuth";
 
 const API_BASE = "http://localhost:3000/api/admin/news";
 
@@ -313,7 +314,7 @@ export default function NewsForm() {
             setMessage("");
 
             try {
-                const res = await fetch(`${API_BASE}/${id}`);
+                const res = await adminFetch(`${API_BASE}/${id}`);
 
                 if (!res.ok) {
                     throw new Error("取得消息失敗");
@@ -345,7 +346,7 @@ export default function NewsForm() {
 
         async function fetchNewsOptions() {
             try {
-                const res = await fetch(API_BASE);
+                const res = await adminFetch(API_BASE);
 
                 if (!res.ok) {
                     throw new Error("取得消息列表失敗");
@@ -377,7 +378,7 @@ export default function NewsForm() {
         setMessage("");
 
         try {
-            const res = await fetch(
+            const res = await adminFetch(
                 isEdit ? `${API_BASE}/${id}` : API_BASE,
                 {
                     method: isEdit ? "PUT" : "POST",

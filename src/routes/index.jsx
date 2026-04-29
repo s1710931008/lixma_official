@@ -11,6 +11,12 @@ import SolarCalculator from "../pages/SolarCalculator";
 import NewsAdmin from "../pages/Admin/NewsAdmin";
 import NewsForm from "../pages/Admin/NewsForm";
 import MediaForm from "../pages/Admin/MediaForm";
+import AdminLogin from "../pages/Admin/AdminLogin";
+import RequireAdmin from "../pages/Admin/RequireAdmin";
+
+function adminPage(element) {
+    return <RequireAdmin>{element}</RequireAdmin>;
+}
 
 // 路由表（可擴充）
 const routes = [
@@ -21,11 +27,12 @@ const routes = [
     { path: "/projects", element: <Projects /> },
     { path: "/contact", element: <Contact /> },
     { path: "/solar-calculator", element: <SolarCalculator /> },
-    { path: "/admin/news", element: <NewsAdmin /> },
-    { path: "/admin/news/create", element: <NewsForm /> },
-    { path: "/admin/news/edit/:id", element: <NewsForm /> },
-    { path: "/admin/media/create", element: <MediaForm /> },
-    { path: "/admin/media/edit/:id", element: <MediaForm /> }
+    { path: "/admin/login", element: <AdminLogin /> },
+    { path: "/admin/news", element: adminPage(<NewsAdmin />) },
+    { path: "/admin/news/create", element: adminPage(<NewsForm />) },
+    { path: "/admin/news/edit/:id", element: adminPage(<NewsForm />) },
+    { path: "/admin/media/create", element: adminPage(<MediaForm />) },
+    { path: "/admin/media/edit/:id", element: adminPage(<MediaForm />) }
 ];
 
 export default function AppRoutes() {
