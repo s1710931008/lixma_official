@@ -58,19 +58,12 @@ export default function News() {
         [apiNewsData, apiMediaData]
     );
 
-    useEffect(() => {
-        if (!currentYears.length) {
-            setActiveYear("");
-            return;
-        }
-
-        if (!currentYears.includes(activeYear)) {
-            setActiveYear(currentYears[0]);
-        }
-    }, [activeYear, currentYears]);
+    const selectedYear = currentYears.includes(activeYear)
+        ? activeYear
+        : currentYears[0] || "";
 
     const currentData = currentSource.filter(
-        (item) => getItemYear(item) === activeYear
+        (item) => getItemYear(item) === selectedYear
     );
 
     function handleTabChange(tab) {
@@ -118,7 +111,7 @@ export default function News() {
                             {archiveYears.map((year) => (
                                 <button
                                     key={year}
-                                    className={`archive-item ${activeYear === year ? "active" : ""
+                                    className={`archive-item ${selectedYear === year ? "active" : ""
                                         }`}
                                     onClick={() => handleYearChange(year)}
                                 >
