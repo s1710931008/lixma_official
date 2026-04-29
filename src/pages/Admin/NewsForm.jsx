@@ -12,7 +12,7 @@ import MenuItem from "@mui/material/MenuItem";
 import Stack from "@mui/material/Stack";
 import TextField from "@mui/material/TextField";
 import Typography from "@mui/material/Typography";
-import { Plus, Trash2 } from "lucide-react";
+import { Plus, Trash2, Upload } from "lucide-react";
 import { newsData as localNewsData } from "../../data/newsData";
 
 const API_BASE = "http://localhost:3000/api/admin/news";
@@ -78,6 +78,45 @@ async function getResponseError(res, fallback) {
     } catch {
         return fallback;
     }
+}
+
+function resizeImageFile(file) {
+    return new Promise((resolve, reject) => {
+        if (!file.type.startsWith("image/")) {
+            reject(new Error("請選擇圖片檔案"));
+            return;
+        }
+
+        const reader = new FileReader();
+
+        reader.onload = () => {
+            const image = new Image();
+
+            image.onload = () => {
+                const maxSize = 1600;
+                const ratio = Math.min(
+                    1,
+                    maxSize / Math.max(image.width, image.height)
+                );
+                const width = Math.round(image.width * ratio);
+                const height = Math.round(image.height * ratio);
+                const canvas = document.createElement("canvas");
+                const context = canvas.getContext("2d");
+
+                canvas.width = width;
+                canvas.height = height;
+                context.drawImage(image, 0, 0, width, height);
+
+                resolve(canvas.toDataURL("image/jpeg", 0.84));
+            };
+
+            image.onerror = () => reject(new Error("圖片讀取失敗"));
+            image.src = reader.result;
+        };
+
+        reader.onerror = () => reject(new Error("圖片讀取失敗"));
+        reader.readAsDataURL(file);
+    });
 }
 
 function FormSection({ title, description, onAdd, children }) {
@@ -149,6 +188,7 @@ export default function NewsForm() {
     const [form, setForm] = useState(emptyForm);
     const [loading, setLoading] = useState(isEdit);
     const [saving, setSaving] = useState(false);
+    const [uploadingCover, setUploadingCover] = useState(false);
     const [message, setMessage] = useState("");
     const [newsOptions, setNewsOptions] = useState(localNewsData);
 
@@ -228,6 +268,41 @@ export default function NewsForm() {
 
     function getRelatedNews(relatedId) {
         return newsOptions.find((item) => Number(item.id) === Number(relatedId));
+    }
+
+    async function handleCoverUpload(event) {
+        const file = event.target.files?.[0];
+        event.target.value = "";
+
+        if (!file) return;
+
+        setUploadingCover(true);
+        setMessage("");
+
+        try {
+            const imageData = await resizeImageFile(file);
+            updateField("coverImage", imageData);
+        } catch (err) {
+            setMessage(err.message || "封面圖片上傳失敗");
+        } finally {
+            setUploadingCover(false);
+        }
+    }
+
+    async function handleGalleryUpload(event, index) {
+        const file = event.target.files?.[0];
+        event.target.value = "";
+
+        if (!file) return;
+
+        setMessage("");
+
+        try {
+            const imageData = await resizeImageFile(file);
+            updateArrayItem("gallery", index, "image", imageData);
+        } catch (err) {
+            setMessage(err.message || "圖庫圖片上傳失敗");
+        }
     }
 
     useEffect(() => {
@@ -449,30 +524,100 @@ export default function NewsForm() {
                         />
                     </Stack>
 
-                    <TextField
-                        label="封面圖片 URL"
-                        value={form.coverImage}
-                        onChange={(event) =>
-                            updateField("coverImage", event.target.value)
-                        }
-                        fullWidth
-                    />
+                    <Box
+                        sx={{
+                            border: "1px solid #e2e8f0",
+                            borderRadius: 2,
+                            p: { xs: 2, sm: 2.5 },
+                            bgcolor: "#ffffff"
+                        }}
+                    >
+                        <Stack spacing={2}>
+                            <Box>
+                                <Typography variant="h6" fontWeight={800}>
+                                    封面圖片
+                                </Typography>
 
-                    {form.coverImage && (
-                        <Box
-                            component="img"
-                            src={form.coverImage}
-                            alt="封面圖片預覽"
-                            sx={{
-                                width: "100%",
-                                maxHeight: 280,
-                                borderRadius: 2,
-                                border: "1px solid #e2e8f0",
-                                bgcolor: "#f8fafc",
-                                objectFit: "cover"
-                            }}
-                        />
-                    )}
+                                <Typography color="text.secondary" sx={{ mt: 0.5 }}>
+                                    可貼圖片 URL，也可自行上傳照片。
+                                </Typography>
+                            </Box>
+
+                            <Stack
+                                direction={{ xs: "column", sm: "row" }}
+                                spacing={1.5}
+                                sx={{ alignItems: "flex-start" }}
+                            >
+                                <TextField
+                                    label="封面圖片 URL"
+                                    value={form.coverImage}
+                                    onChange={(event) =>
+                                        updateField(
+                                            "coverImage",
+                                            event.target.value
+                                        )
+                                    }
+                                    helperText="貼上網址或上傳照片後自動填入。"
+                                    fullWidth
+                                />
+
+                                <Button
+                                    component="label"
+                                    variant="outlined"
+                                    startIcon={<Upload size={18} />}
+                                    disabled={uploadingCover}
+                                    sx={{ minWidth: 150, py: 1.65 }}
+                                >
+                                    {uploadingCover ? "處理中..." : "上傳照片"}
+                                    <input
+                                        type="file"
+                                        accept="image/*"
+                                        hidden
+                                        onChange={handleCoverUpload}
+                                    />
+                                </Button>
+                            </Stack>
+
+                            {form.coverImage && (
+                                <Box>
+                                    <Box
+                                        component="img"
+                                        src={form.coverImage}
+                                        alt="封面圖片預覽"
+                                        sx={{
+                                            width: "100%",
+                                            maxHeight: 280,
+                                            borderRadius: 2,
+                                            border: "1px solid #e2e8f0",
+                                            bgcolor: "#f8fafc",
+                                            objectFit: "cover"
+                                        }}
+                                    />
+
+                                    <Stack
+                                        direction="row"
+                                        spacing={1}
+                                        sx={{
+                                            justifyContent: "flex-end",
+                                            mt: 1
+                                        }}
+                                    >
+                                        <Button
+                                            type="button"
+                                            color="error"
+                                            variant="outlined"
+                                            startIcon={<Trash2 size={18} />}
+                                            onClick={() =>
+                                                updateField("coverImage", "")
+                                            }
+                                        >
+                                            刪除照片
+                                        </Button>
+                                    </Stack>
+                                </Box>
+                            )}
+                        </Stack>
+                    </Box>
 
                     <FormControlLabel
                         control={
@@ -687,7 +832,7 @@ export default function NewsForm() {
 
                     <FormSection
                         title="文章圖庫"
-                        description="對應前台內容中的三張並排圖片。"
+                        description="可貼圖片 URL，也可自行上傳照片。"
                         onAdd={() =>
                             addArrayItem("gallery", {
                                 image: "",
@@ -731,6 +876,50 @@ export default function NewsForm() {
                                         }
                                         fullWidth
                                     />
+
+                                    <Stack
+                                        direction={{ xs: "column", sm: "row" }}
+                                        spacing={1}
+                                    >
+                                        <Button
+                                            component="label"
+                                            type="button"
+                                            variant="outlined"
+                                            startIcon={<Upload size={18} />}
+                                        >
+                                            上傳照片
+                                            <input
+                                                type="file"
+                                                accept="image/*"
+                                                hidden
+                                                onChange={(event) =>
+                                                    handleGalleryUpload(
+                                                        event,
+                                                        index
+                                                    )
+                                                }
+                                            />
+                                        </Button>
+
+                                        {item.image && (
+                                            <Button
+                                                type="button"
+                                                color="error"
+                                                variant="outlined"
+                                                startIcon={<Trash2 size={18} />}
+                                                onClick={() =>
+                                                    updateArrayItem(
+                                                        "gallery",
+                                                        index,
+                                                        "image",
+                                                        ""
+                                                    )
+                                                }
+                                            >
+                                                刪除照片
+                                            </Button>
+                                        )}
+                                    </Stack>
 
                                     <TextField
                                         label="替代文字"

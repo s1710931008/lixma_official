@@ -12,7 +12,7 @@ const app = express();
 const db = new Database(DB_PATH);
 
 app.use(cors());
-app.use(express.json({ limit: "2mb" }));
+app.use(express.json({ limit: "8mb" }));
 
 db.exec(`
 CREATE TABLE IF NOT EXISTS news (
