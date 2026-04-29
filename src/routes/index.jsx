@@ -1,4 +1,4 @@
-import { Routes, Route } from "react-router-dom";
+import { Navigate, Routes, Route } from "react-router-dom";
 
 // pages
 import Home from "../pages/Home";
@@ -29,6 +29,8 @@ const routes = [
     { path: "/projects", element: <Projects /> },
     { path: "/contact", element: <Contact /> },
     { path: "/solar-calculator", element: <SolarCalculator /> },
+    { path: "/admin", element: <Navigate to="/admin/news" replace /> },
+    { path: "/admin/", element: <Navigate to="/admin/news" replace /> },
     { path: "/admin/login", element: <AdminLogin /> },
     { path: "/admin/news", element: adminPage(<NewsAdmin />) },
     { path: "/admin/news/create", element: adminPage(<NewsForm />) },

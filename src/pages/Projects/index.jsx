@@ -16,6 +16,7 @@ import BoltIcon from "@mui/icons-material/Bolt";
 
 import "./Projects.css";
 import { projectData } from "../../data/projectData";
+import AdminPreviewBack from "../../components/AdminPreviewBack";
 
 const API_BASE = "http://localhost:3000/api/projects";
 const PAGE_SIZE = 3;
@@ -75,6 +76,8 @@ export default function Projects() {
 
     return (
         <Box className="projects-page">
+            <AdminPreviewBack />
+
             {/* breadcrumb */}
             <Box className="projects-breadcrumb-wrap">
                 <Container maxWidth="lg">

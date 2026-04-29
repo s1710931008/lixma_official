@@ -6,6 +6,7 @@ import Container from "@mui/material/Container";
 import Typography from "@mui/material/Typography";
 import "./NewsDetail.css";
 import { newsData } from "../../data/newsData";
+import AdminPreviewBack from "../../components/AdminPreviewBack";
 
 const API_BASE = "http://localhost:3000/api/news";
 
@@ -113,6 +114,8 @@ export default function NewsDetail() {
 
     return (
         <Box className="news-detail-page">
+            <AdminPreviewBack />
+
             <Box className="detail-breadcrumb-wrap">
                 <Container maxWidth="lg">
                     <nav className="breadcrumbs">

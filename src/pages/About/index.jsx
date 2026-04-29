@@ -17,6 +17,7 @@ import ShieldRoundedIcon from "@mui/icons-material/ShieldRounded";
 
 import "./About.css";
 import { historyData as localHistoryData } from "../../data/historyData";
+import AdminPreviewBack from "../../components/AdminPreviewBack";
 
 const HISTORY_API = "http://localhost:3000/api/history";
 
@@ -130,6 +131,8 @@ export default function About() {
 
     return (
         <Box className="about-page">
+            <AdminPreviewBack />
+
             <Box className="about-hero">
                 <Box className="about-hero-overlay" />
                 <Container maxWidth="lg" className="about-hero-container">

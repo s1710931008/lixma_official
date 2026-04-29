@@ -526,7 +526,7 @@ export default function NewsAdmin({ defaultTab = "news" }) {
                                         <Button
                                             variant="outlined"
                                             component={Link}
-                                            to={`/news/${item.id}`}
+                                            to={`/news/${item.id}?adminReturn=/admin/news`}
                                         >
                                             預覽
                                         </Button>
@@ -586,7 +586,7 @@ export default function NewsAdmin({ defaultTab = "news" }) {
                                         <Button
                                             variant="outlined"
                                             component={Link}
-                                            to="/projects"
+                                            to="/projects?adminReturn=/admin/projects"
                                         >
                                             預覽
                                         </Button>
@@ -614,7 +614,7 @@ export default function NewsAdmin({ defaultTab = "news" }) {
                                         <Button
                                             variant="outlined"
                                             component={Link}
-                                            to="/about"
+                                            to="/about?adminReturn=/admin/history"
                                         >
                                             預覽
                                         </Button>
