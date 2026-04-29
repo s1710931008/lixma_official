@@ -4,6 +4,8 @@ import Database from "better-sqlite3";
 import express from "express";
 import { dirname, join } from "node:path";
 import { fileURLToPath } from "node:url";
+import { projectData as defaultProjectData } from "../data/projectData.js";
+import { historyData as defaultHistoryData } from "../data/historyData.js";
 
 const __dirname = dirname(fileURLToPath(import.meta.url));
 const PORT = Number(process.env.PORT || 3000);
@@ -83,6 +85,24 @@ CREATE TABLE IF NOT EXISTS media_reports (
   is_active INTEGER DEFAULT 1,
   created_at TEXT DEFAULT CURRENT_TIMESTAMP
 );
+
+CREATE TABLE IF NOT EXISTS projects (
+  id INTEGER PRIMARY KEY AUTOINCREMENT,
+  title TEXT NOT NULL,
+  desc TEXT,
+  category TEXT,
+  image TEXT,
+  is_active INTEGER DEFAULT 1,
+  created_at TEXT DEFAULT CURRENT_TIMESTAMP
+);
+
+CREATE TABLE IF NOT EXISTS company_history (
+  id INTEGER PRIMARY KEY AUTOINCREMENT,
+  year TEXT NOT NULL,
+  text TEXT NOT NULL,
+  is_active INTEGER DEFAULT 1,
+  created_at TEXT DEFAULT CURRENT_TIMESTAMP
+);
 `);
 
 function columnExists(table, column) {
@@ -139,6 +159,11 @@ function migrateSchema() {
     addColumnIfMissing("media_reports", "url", "TEXT");
     addColumnIfMissing("media_reports", "source", "TEXT");
     addColumnIfMissing("media_reports", "is_active", "INTEGER DEFAULT 1");
+    addColumnIfMissing("projects", "desc", "TEXT");
+    addColumnIfMissing("projects", "category", "TEXT");
+    addColumnIfMissing("projects", "image", "TEXT");
+    addColumnIfMissing("projects", "is_active", "INTEGER DEFAULT 1");
+    addColumnIfMissing("company_history", "is_active", "INTEGER DEFAULT 1");
 
     if (columnExists("news", "published_date")) {
         db.exec(`
@@ -198,6 +223,39 @@ function migrateSchema() {
         SET year = COALESCE(NULLIF(year, ''), substr(date, 1, 4))
         WHERE date IS NOT NULL
     `);
+
+    const projectCount = db.prepare("SELECT COUNT(*) AS count FROM projects").get();
+
+    if (projectCount.count === 0) {
+        const insertProject = db.prepare(`
+            INSERT INTO projects (title, desc, category, image, is_active)
+            VALUES (?, ?, ?, ?, 1)
+        `);
+
+        defaultProjectData.forEach((item) => {
+            insertProject.run(
+                item.title,
+                item.desc,
+                item.category,
+                item.image
+            );
+        });
+    }
+
+    const historyCount = db
+        .prepare("SELECT COUNT(*) AS count FROM company_history")
+        .get();
+
+    if (historyCount.count === 0) {
+        const insertHistory = db.prepare(`
+            INSERT INTO company_history (year, text, is_active)
+            VALUES (?, ?, 1)
+        `);
+
+        defaultHistoryData.forEach((item) => {
+            insertHistory.run(item.year, item.text);
+        });
+    }
 }
 
 migrateSchema();
@@ -240,6 +298,22 @@ function normalizeMediaPayload(body) {
         year: body.year || (body.date ? String(body.date).slice(0, 4) : ""),
         url: body.url || "",
         source: body.source || ""
+    };
+}
+
+function normalizeProjectPayload(body) {
+    return {
+        title: String(body.title || "").trim(),
+        desc: body.desc || "",
+        category: body.category || "",
+        image: body.image || ""
+    };
+}
+
+function normalizeHistoryPayload(body) {
+    return {
+        year: String(body.year || "").trim(),
+        text: String(body.text || "").trim()
     };
 }
 
@@ -473,6 +547,86 @@ function getMedia(id, includeInactive = false) {
     return item ? { ...item, isActive: Boolean(item.isActive) } : null;
 }
 
+function listProjects(includeInactive = false) {
+    const where = includeInactive ? "" : "WHERE is_active = 1";
+
+    return db
+        .prepare(`
+            SELECT
+              id,
+              title,
+              desc,
+              category,
+              image,
+              is_active AS isActive
+            FROM projects
+            ${where}
+            ORDER BY id ASC
+        `)
+        .all()
+        .map((item) => ({
+            ...item,
+            isActive: Boolean(item.isActive)
+        }));
+}
+
+function getProject(id, includeInactive = false) {
+    const where = includeInactive ? "id = ?" : "id = ? AND is_active = 1";
+    const item = db
+        .prepare(`
+            SELECT
+              id,
+              title,
+              desc,
+              category,
+              image,
+              is_active AS isActive
+            FROM projects
+            WHERE ${where}
+        `)
+        .get(id);
+
+    return item ? { ...item, isActive: Boolean(item.isActive) } : null;
+}
+
+function listHistory(includeInactive = false) {
+    const where = includeInactive ? "" : "WHERE is_active = 1";
+
+    return db
+        .prepare(`
+            SELECT
+              id,
+              year,
+              text,
+              is_active AS isActive
+            FROM company_history
+            ${where}
+            ORDER BY CAST(year AS INTEGER) DESC, id DESC
+        `)
+        .all()
+        .map((item) => ({
+            ...item,
+            isActive: Boolean(item.isActive)
+        }));
+}
+
+function getHistoryItem(id, includeInactive = false) {
+    const where = includeInactive ? "id = ?" : "id = ? AND is_active = 1";
+    const item = db
+        .prepare(`
+            SELECT
+              id,
+              year,
+              text,
+              is_active AS isActive
+            FROM company_history
+            WHERE ${where}
+        `)
+        .get(id);
+
+    return item ? { ...item, isActive: Boolean(item.isActive) } : null;
+}
+
 app.get("/api/health", (req, res) => {
     res.json({ ok: true, dbPath: DB_PATH });
 });
@@ -494,6 +648,14 @@ app.get("/api/news/:idOrSlug", (req, res) => {
 
 app.get("/api/media", (req, res) => {
     res.json(listMedia(false));
+});
+
+app.get("/api/projects", (req, res) => {
+    res.json(listProjects(false));
+});
+
+app.get("/api/history", (req, res) => {
+    res.json(listHistory(false));
 });
 
 app.post("/api/admin/login", (req, res) => {
@@ -535,6 +697,179 @@ app.get("/api/admin/media/:id", (req, res) => {
     }
 
     res.json(media);
+});
+
+app.get("/api/admin/projects", (req, res) => {
+    res.json(listProjects(true));
+});
+
+app.get("/api/admin/projects/:id", (req, res) => {
+    const project = getProject(req.params.id, true);
+
+    if (!project) {
+        return res.status(404).json({ message: "Project not found" });
+    }
+
+    res.json(project);
+});
+
+app.post("/api/admin/projects", (req, res) => {
+    const payload = normalizeProjectPayload(req.body);
+
+    if (!payload.title) {
+        return res.status(400).json({ message: "Title is required" });
+    }
+
+    try {
+        const result = db
+            .prepare(`
+                INSERT INTO projects (
+                  title,
+                  desc,
+                  category,
+                  image,
+                  is_active
+                )
+                VALUES (?, ?, ?, ?, 1)
+            `)
+            .run(
+                payload.title,
+                payload.desc,
+                payload.category,
+                payload.image
+            );
+
+        res.status(201).json({
+            message: "Project created",
+            id: result.lastInsertRowid
+        });
+    } catch (err) {
+        res.status(400).json({ message: err.message || "Create failed" });
+    }
+});
+
+app.put("/api/admin/projects/:id", (req, res) => {
+    const payload = normalizeProjectPayload(req.body);
+
+    if (!payload.title) {
+        return res.status(400).json({ message: "Title is required" });
+    }
+
+    try {
+        const result = db
+            .prepare(`
+                UPDATE projects SET
+                  title = ?,
+                  desc = ?,
+                  category = ?,
+                  image = ?
+                WHERE id = ?
+            `)
+            .run(
+                payload.title,
+                payload.desc,
+                payload.category,
+                payload.image,
+                req.params.id
+            );
+
+        if (result.changes === 0) {
+            return res.status(404).json({ message: "Project not found" });
+        }
+
+        res.json({ message: "Project updated" });
+    } catch (err) {
+        res.status(400).json({ message: err.message || "Update failed" });
+    }
+});
+
+app.delete("/api/admin/projects/:id", (req, res) => {
+    const result = db
+        .prepare("UPDATE projects SET is_active = 0 WHERE id = ?")
+        .run(req.params.id);
+
+    if (result.changes === 0) {
+        return res.status(404).json({ message: "Project not found" });
+    }
+
+    res.json({ message: "Project deleted" });
+});
+
+app.get("/api/admin/history", (req, res) => {
+    res.json(listHistory(true));
+});
+
+app.get("/api/admin/history/:id", (req, res) => {
+    const item = getHistoryItem(req.params.id, true);
+
+    if (!item) {
+        return res.status(404).json({ message: "History item not found" });
+    }
+
+    res.json(item);
+});
+
+app.post("/api/admin/history", (req, res) => {
+    const payload = normalizeHistoryPayload(req.body);
+
+    if (!payload.year || !payload.text) {
+        return res.status(400).json({ message: "Year and text are required" });
+    }
+
+    try {
+        const result = db
+            .prepare(`
+                INSERT INTO company_history (year, text, is_active)
+                VALUES (?, ?, 1)
+            `)
+            .run(payload.year, payload.text);
+
+        res.status(201).json({
+            message: "History item created",
+            id: result.lastInsertRowid
+        });
+    } catch (err) {
+        res.status(400).json({ message: err.message || "Create failed" });
+    }
+});
+
+app.put("/api/admin/history/:id", (req, res) => {
+    const payload = normalizeHistoryPayload(req.body);
+
+    if (!payload.year || !payload.text) {
+        return res.status(400).json({ message: "Year and text are required" });
+    }
+
+    try {
+        const result = db
+            .prepare(`
+                UPDATE company_history SET
+                  year = ?,
+                  text = ?
+                WHERE id = ?
+            `)
+            .run(payload.year, payload.text, req.params.id);
+
+        if (result.changes === 0) {
+            return res.status(404).json({ message: "History item not found" });
+        }
+
+        res.json({ message: "History item updated" });
+    } catch (err) {
+        res.status(400).json({ message: err.message || "Update failed" });
+    }
+});
+
+app.delete("/api/admin/history/:id", (req, res) => {
+    const result = db
+        .prepare("UPDATE company_history SET is_active = 0 WHERE id = ?")
+        .run(req.params.id);
+
+    if (result.changes === 0) {
+        return res.status(404).json({ message: "History item not found" });
+    }
+
+    res.json({ message: "History item deleted" });
 });
 
 app.post("/api/admin/media", (req, res) => {

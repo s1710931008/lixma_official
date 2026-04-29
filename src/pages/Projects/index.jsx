@@ -1,4 +1,4 @@
-import { useState } from "react";
+import { useEffect, useMemo, useState } from "react";
 import Box from "@mui/material/Box";
 import Container from "@mui/material/Container";
 import Pagination from "@mui/material/Pagination";
@@ -15,64 +15,53 @@ import BusinessIcon from "@mui/icons-material/Business";
 import BoltIcon from "@mui/icons-material/Bolt";
 
 import "./Projects.css";
+import { projectData } from "../../data/projectData";
 
-const pages = {
-    1: [
-        {
-            title: "廠房屋頂",
-            desc: "大型工業廠房太陽能系統建置",
-            category: "Factory",
-            img: "https://www.lixma.com.tw/storage/gallery/5b1799c778a3db37754357a2/63329cd68482cafe112cc632.jpg",
-        },
-        {
-            title: "BIPV導水型",
-            desc: "建築整合型太陽能系統",
-            category: "BIPV",
-            img: "https://www.lixma.com.tw/storage/gallery/5b18bde978a3db153b74c5b2/633298b28482cafe32270ef2.jpg",
-        },
-        {
-            title: "公家機關",
-            desc: "政府單位太陽能發電系統",
-            category: "Government",
-            img: "https://www.lixma.com.tw/storage/gallery/5b304cc178a3db5be33c3442/633155f98482cad641120146.jpg",
-        },
-    ],
-    2: [
-        {
-            title: "學校",
-            desc: "校園太陽能發電系統建置",
-            category: "School",
-            img: "https://www.lixma.com.tw/storage/gallery/5b17a7a378a3db3be86c8fb2/63315c2c8482cad66b178124.jpg",
-        },
-        {
-            title: "農畜舍",
-            desc: "農業設施太陽能系統",
-            category: "Agriculture",
-            img: "https://www.lixma.com.tw/storage/gallery/5b31b42b78a3db3ec70f72f2/6332947d8482caf0f33002a5.jpg",
-        },
-        {
-            title: "大型地面電站",
-            desc: "地面型太陽能發電廠",
-            category: "Ground Plant",
-            img: "https://www.lixma.com.tw/storage/gallery/5b17a47078a3db3a36696152/6331675d8482cada84409fa3.jpg",
-        },
-    ],
-    3: [
-        {
-            title: "地面型",
-            desc: "地面型太陽能系統建置",
-            category: "Ground Type",
-            img: "https://www.lixma.com.tw/storage/gallery/6331660d8482cad74e266ca3/633172a08482cadbcc612ca2.jpg",
-        },
-    ],
-};
+const API_BASE = "http://localhost:3000/api/projects";
+const PAGE_SIZE = 3;
 
 export default function Projects() {
     const [page, setPage] = useState(1);
     const [open, setOpen] = useState(false);
     const [selectedItem, setSelectedItem] = useState(null);
+    const [items, setItems] = useState(projectData);
 
-    const totalPages = Object.keys(pages).length;
+    const totalPages = Math.max(1, Math.ceil(items.length / PAGE_SIZE));
+    const safePage = Math.min(page, totalPages);
+    const currentItems = useMemo(
+        () => items.slice((safePage - 1) * PAGE_SIZE, safePage * PAGE_SIZE),
+        [items, safePage]
+    );
+
+    useEffect(() => {
+        let active = true;
+
+        async function fetchProjects() {
+            try {
+                const res = await fetch(API_BASE);
+
+                if (!res.ok) {
+                    throw new Error("Failed to fetch projects");
+                }
+
+                const data = await res.json();
+
+                if (active) {
+                    setItems(Array.isArray(data) ? data : data.items ?? []);
+                }
+            } catch {
+                if (active) {
+                    setItems(projectData);
+                }
+            }
+        }
+
+        fetchProjects();
+
+        return () => {
+            active = false;
+        };
+    }, []);
 
     const handleOpen = (item) => {
         setSelectedItem(item);
@@ -133,15 +122,15 @@ export default function Projects() {
                 </Box>
 
                 <Box className="gallery-grid">
-                    {pages[page].map((item, i) => (
+                    {currentItems.map((item) => (
                         <Box
                             className="gallery-card"
-                            key={i}
+                            key={item.id}
                             onClick={() => handleOpen(item)}
                         >
                             <Box className="gallery-media-wrap">
                                 <img
-                                    src={item.img}
+                                    src={item.image}
                                     alt={item.title}
                                     className="gallery-image"
                                 />
@@ -183,7 +172,7 @@ export default function Projects() {
                 >
                     <Pagination
                         count={totalPages}
-                        page={page}
+                        page={safePage}
                         onChange={(event, value) => setPage(value)}
                         size="large"
                         shape="rounded"
@@ -237,7 +226,7 @@ export default function Projects() {
                         <>
                             <Box className="lightbox-image-wrap">
                                 <img
-                                    src={selectedItem.img}
+                                    src={selectedItem.image}
                                     alt={selectedItem.title}
                                     className="lightbox-image"
                                 />

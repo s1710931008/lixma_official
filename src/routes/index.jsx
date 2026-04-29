@@ -13,6 +13,8 @@ import NewsForm from "../pages/Admin/NewsForm";
 import MediaForm from "../pages/Admin/MediaForm";
 import AdminLogin from "../pages/Admin/AdminLogin";
 import RequireAdmin from "../pages/Admin/RequireAdmin";
+import ProjectForm from "../pages/Admin/ProjectForm";
+import HistoryForm from "../pages/Admin/HistoryForm";
 
 function adminPage(element) {
     return <RequireAdmin>{element}</RequireAdmin>;
@@ -32,7 +34,19 @@ const routes = [
     { path: "/admin/news/create", element: adminPage(<NewsForm />) },
     { path: "/admin/news/edit/:id", element: adminPage(<NewsForm />) },
     { path: "/admin/media/create", element: adminPage(<MediaForm />) },
-    { path: "/admin/media/edit/:id", element: adminPage(<MediaForm />) }
+    { path: "/admin/media/edit/:id", element: adminPage(<MediaForm />) },
+    {
+        path: "/admin/projects",
+        element: adminPage(<NewsAdmin defaultTab="projects" />)
+    },
+    { path: "/admin/projects/create", element: adminPage(<ProjectForm />) },
+    { path: "/admin/projects/edit/:id", element: adminPage(<ProjectForm />) },
+    {
+        path: "/admin/history",
+        element: adminPage(<NewsAdmin defaultTab="history" />)
+    },
+    { path: "/admin/history/create", element: adminPage(<HistoryForm />) },
+    { path: "/admin/history/edit/:id", element: adminPage(<HistoryForm />) }
 ];
 
 export default function AppRoutes() {

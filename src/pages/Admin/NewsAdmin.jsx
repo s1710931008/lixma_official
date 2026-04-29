@@ -11,24 +11,34 @@ import {
     mediaData as localMediaData,
     newsData as localNewsData
 } from "../../data/newsData";
+import { projectData as localProjectData } from "../../data/projectData";
+import { historyData as localHistoryData } from "../../data/historyData";
 import { adminFetch, clearAdminToken } from "../../utils/adminAuth";
 
 const API_BASE = "http://localhost:3000/api/admin/news";
 const MEDIA_API_BASE = "http://localhost:3000/api/admin/media";
+const PROJECT_API_BASE = "http://localhost:3000/api/admin/projects";
+const HISTORY_API_BASE = "http://localhost:3000/api/admin/history";
 const PAGE_SIZE = 5;
 
-export default function NewsAdmin() {
+export default function NewsAdmin({ defaultTab = "news" }) {
     const navigate = useNavigate();
-    const [activeTab, setActiveTab] = useState("news");
+    const [activeTab, setActiveTab] = useState(defaultTab);
     const [newsList, setNewsList] = useState([]);
     const [mediaList, setMediaList] = useState([]);
+    const [projectList, setProjectList] = useState([]);
+    const [historyList, setHistoryList] = useState([]);
     const [loading, setLoading] = useState(true);
     const [mediaLoading, setMediaLoading] = useState(true);
+    const [projectLoading, setProjectLoading] = useState(true);
+    const [historyLoading, setHistoryLoading] = useState(true);
     const [error, setError] = useState("");
     const [usingLocalData, setUsingLocalData] = useState(false);
     const [pageByTab, setPageByTab] = useState({
         news: 1,
-        media: 1
+        media: 1,
+        projects: 1,
+        history: 1
     });
 
     async function fetchNews() {
@@ -70,6 +80,44 @@ export default function NewsAdmin() {
             setMediaList(localMediaData);
         } finally {
             setMediaLoading(false);
+        }
+    }
+
+    async function fetchProjects() {
+        setProjectLoading(true);
+
+        try {
+            const res = await adminFetch(PROJECT_API_BASE);
+
+            if (!res.ok) {
+                throw new Error("取得專案實績失敗");
+            }
+
+            const data = await res.json();
+            setProjectList(Array.isArray(data) ? data : data.items ?? []);
+        } catch {
+            setProjectList(localProjectData);
+        } finally {
+            setProjectLoading(false);
+        }
+    }
+
+    async function fetchHistory() {
+        setHistoryLoading(true);
+
+        try {
+            const res = await adminFetch(HISTORY_API_BASE);
+
+            if (!res.ok) {
+                throw new Error("取得發展歷程失敗");
+            }
+
+            const data = await res.json();
+            setHistoryList(Array.isArray(data) ? data : data.items ?? []);
+        } catch {
+            setHistoryList(localHistoryData);
+        } finally {
+            setHistoryLoading(false);
         }
     }
 
@@ -118,13 +166,69 @@ export default function NewsAdmin() {
         }
     }
 
+    async function deleteProject(id) {
+        const confirmed = window.confirm("確定要刪除這個案場嗎？");
+
+        if (!confirmed) return;
+
+        try {
+            const res = await adminFetch(`${PROJECT_API_BASE}/${id}`, {
+                method: "DELETE"
+            });
+
+            if (!res.ok) {
+                throw new Error("刪除案場失敗");
+            }
+
+            fetchProjects();
+        } catch (err) {
+            window.alert(err.message || "刪除案場失敗");
+        }
+    }
+
+    async function deleteHistory(id) {
+        const confirmed = window.confirm("確定要刪除這筆發展歷程嗎？");
+
+        if (!confirmed) return;
+
+        try {
+            const res = await adminFetch(`${HISTORY_API_BASE}/${id}`, {
+                method: "DELETE"
+            });
+
+            if (!res.ok) {
+                throw new Error("刪除發展歷程失敗");
+            }
+
+            fetchHistory();
+        } catch (err) {
+            window.alert(err.message || "刪除發展歷程失敗");
+        }
+    }
+
     useEffect(() => {
         fetchNews();
         fetchMedia();
+        fetchProjects();
+        fetchHistory();
     }, []);
 
-    const currentList = activeTab === "news" ? newsList : mediaList;
-    const currentLoading = activeTab === "news" ? loading : mediaLoading;
+    const currentList =
+        activeTab === "news"
+            ? newsList
+            : activeTab === "media"
+              ? mediaList
+              : activeTab === "projects"
+                ? projectList
+                : historyList;
+    const currentLoading =
+        activeTab === "news"
+            ? loading
+            : activeTab === "media"
+              ? mediaLoading
+              : activeTab === "projects"
+                ? projectLoading
+                : historyLoading;
     const currentPage = pageByTab[activeTab];
     const totalPages = Math.max(1, Math.ceil(currentList.length / PAGE_SIZE));
 
@@ -186,7 +290,7 @@ export default function NewsAdmin() {
                         </Typography>
 
                         <Typography color="text.secondary" sx={{ mt: 0.5 }}>
-                            Admin / News
+                            Admin
                         </Typography>
                     </Box>
 
@@ -226,6 +330,38 @@ export default function NewsAdmin() {
                                 </Button>
                             </>
                         )}
+
+                        {activeTab === "projects" && (
+                            <>
+                                <Button variant="outlined" onClick={fetchProjects}>
+                                    重新載入
+                                </Button>
+
+                                <Button
+                                    variant="contained"
+                                    component={Link}
+                                    to="/admin/projects/create"
+                                >
+                                    新增案場
+                                </Button>
+                            </>
+                        )}
+
+                        {activeTab === "history" && (
+                            <>
+                                <Button variant="outlined" onClick={fetchHistory}>
+                                    重新載入
+                                </Button>
+
+                                <Button
+                                    variant="contained"
+                                    component={Link}
+                                    to="/admin/history/create"
+                                >
+                                    新增歷程
+                                </Button>
+                            </>
+                        )}
                     </Stack>
                 </Stack>
 
@@ -251,6 +387,20 @@ export default function NewsAdmin() {
                     >
                         媒體報導
                     </Button>
+
+                    <Button
+                        variant={activeTab === "projects" ? "contained" : "text"}
+                        onClick={() => handleTabChange("projects")}
+                    >
+                        專案實績
+                    </Button>
+
+                    <Button
+                        variant={activeTab === "history" ? "contained" : "text"}
+                        onClick={() => handleTabChange("history")}
+                    >
+                        發展歷程
+                    </Button>
                 </Stack>
 
                 {currentLoading && (
@@ -268,7 +418,7 @@ export default function NewsAdmin() {
                             color: "text.secondary"
                         }}
                     >
-                        目前沒有消息
+                        目前沒有資料
                     </Box>
                 )}
 
@@ -285,18 +435,38 @@ export default function NewsAdmin() {
                                     display: "grid",
                                     gridTemplateColumns: {
                                         xs: "1fr",
-                                        md: "1fr auto"
+                                        md:
+                                            activeTab === "projects"
+                                                ? "140px 1fr auto"
+                                                : "1fr auto"
                                     },
                                     gap: 2,
                                     alignItems: "center"
                                 }}
                             >
+                                {activeTab === "projects" && item.image && (
+                                    <Box
+                                        component="img"
+                                        src={item.image}
+                                        alt={item.title}
+                                        sx={{
+                                            width: "100%",
+                                            height: 90,
+                                            borderRadius: 1,
+                                            objectFit: "cover",
+                                            border: "1px solid #e2e8f0"
+                                        }}
+                                    />
+                                )}
+
                                 <Box>
                                     <Typography
                                         variant="h6"
                                         fontWeight={700}
                                     >
-                                        {item.title}
+                                        {activeTab === "history"
+                                            ? item.year
+                                            : item.title}
                                     </Typography>
 
                                     <Stack
@@ -306,7 +476,7 @@ export default function NewsAdmin() {
                                         flexWrap="wrap"
                                         sx={{ mt: 1 }}
                                     >
-                                        {item.date && (
+                                        {activeTab !== "projects" && item.date && (
                                             <Chip
                                                 size="small"
                                                 label={`日期 ${item.date}`}
@@ -320,13 +490,35 @@ export default function NewsAdmin() {
                                             />
                                         )}
 
-                                        {item.year && (
+                                        {activeTab !== "projects" && item.year && (
                                             <Chip
                                                 size="small"
-                                                label={item.year}
+                                                label={
+                                                    activeTab === "history"
+                                                        ? `年份 ${item.year}`
+                                                        : item.year
+                                                }
                                             />
                                         )}
                                     </Stack>
+
+                                    {activeTab === "projects" && item.desc && (
+                                        <Typography
+                                            color="text.secondary"
+                                            sx={{ mt: 1 }}
+                                        >
+                                            {item.desc}
+                                        </Typography>
+                                    )}
+
+                                    {activeTab === "history" && item.text && (
+                                        <Typography
+                                            color="text.secondary"
+                                            sx={{ mt: 1 }}
+                                        >
+                                            {item.text}
+                                        </Typography>
+                                    )}
                                 </Box>
 
                                 {activeTab === "news" ? (
@@ -357,7 +549,7 @@ export default function NewsAdmin() {
                                             刪除
                                         </Button>
                                     </Stack>
-                                ) : (
+                                ) : activeTab === "media" ? (
                                     <Stack direction="row" spacing={1}>
                                         {item.url && (
                                             <Button
@@ -384,6 +576,62 @@ export default function NewsAdmin() {
                                             variant="outlined"
                                             onClick={() =>
                                                 deleteMedia(item.id)
+                                            }
+                                        >
+                                            刪除
+                                        </Button>
+                                    </Stack>
+                                ) : activeTab === "projects" ? (
+                                    <Stack direction="row" spacing={1}>
+                                        <Button
+                                            variant="outlined"
+                                            component={Link}
+                                            to="/projects"
+                                        >
+                                            預覽
+                                        </Button>
+
+                                        <Button
+                                            variant="outlined"
+                                            component={Link}
+                                            to={`/admin/projects/edit/${item.id}`}
+                                        >
+                                            編輯
+                                        </Button>
+
+                                        <Button
+                                            color="error"
+                                            variant="outlined"
+                                            onClick={() =>
+                                                deleteProject(item.id)
+                                            }
+                                        >
+                                            刪除
+                                        </Button>
+                                    </Stack>
+                                ) : (
+                                    <Stack direction="row" spacing={1}>
+                                        <Button
+                                            variant="outlined"
+                                            component={Link}
+                                            to="/about"
+                                        >
+                                            預覽
+                                        </Button>
+
+                                        <Button
+                                            variant="outlined"
+                                            component={Link}
+                                            to={`/admin/history/edit/${item.id}`}
+                                        >
+                                            編輯
+                                        </Button>
+
+                                        <Button
+                                            color="error"
+                                            variant="outlined"
+                                            onClick={() =>
+                                                deleteHistory(item.id)
                                             }
                                         >
                                             刪除

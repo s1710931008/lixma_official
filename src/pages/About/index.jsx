@@ -16,20 +16,9 @@ import TrendingUpRoundedIcon from "@mui/icons-material/TrendingUpRounded";
 import ShieldRoundedIcon from "@mui/icons-material/ShieldRounded";
 
 import "./About.css";
+import { historyData as localHistoryData } from "../../data/historyData";
 
-const historyData = [
-    { year: "2003", text: "公司成立，首次導入 T5 螢光燈具" },
-    { year: "2004", text: "自行研發 LED 燈具並導入市場" },
-    { year: "2005", text: "投入太陽能產業" },
-    { year: "2013", text: "研發感應燈控" },
-    { year: "2015", text: "開發完成節能自動控制系統" },
-    { year: "2016", text: "獲得 BIPV 太陽能導水型支架發明專利" },
-    { year: "2017", text: "完成屏東監獄太陽能案場建置" },
-    { year: "2018", text: "完成雲林、嘉義監獄太陽能案場建置" },
-    { year: "2021", text: "雲林監獄獲得光鐸獎" },
-    { year: "2023", text: "金城國中獲得光鐸獎" },
-    { year: "2024", text: "獲得多國太陽能防災專利" },
-];
+const HISTORY_API = "http://localhost:3000/api/history";
 
 const valueData = [
     {
@@ -104,9 +93,40 @@ function Reveal({ children, delay = 0 }) {
 }
 
 export default function About() {
-    const sortedHistoryData = [...historyData].sort(
+    const [historyItems, setHistoryItems] = useState(localHistoryData);
+    const sortedHistoryData = [...historyItems].sort(
         (a, b) => Number(b.year) - Number(a.year)
     );
+
+    useEffect(() => {
+        let active = true;
+
+        async function fetchHistory() {
+            try {
+                const res = await fetch(HISTORY_API);
+
+                if (!res.ok) {
+                    throw new Error("Failed to fetch history");
+                }
+
+                const data = await res.json();
+
+                if (active) {
+                    setHistoryItems(Array.isArray(data) ? data : data.items ?? []);
+                }
+            } catch {
+                if (active) {
+                    setHistoryItems(localHistoryData);
+                }
+            }
+        }
+
+        fetchHistory();
+
+        return () => {
+            active = false;
+        };
+    }, []);
 
     return (
         <Box className="about-page">
