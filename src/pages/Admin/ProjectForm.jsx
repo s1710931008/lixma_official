@@ -539,11 +539,12 @@ export default function ProjectForm() {
                                         alt="案場照片預覽"
                                         sx={{
                                             width: "100%",
-                                            maxHeight: 320,
+                                            height: "auto",
                                             borderRadius: 2,
                                             border: "1px solid #e2e8f0",
                                             bgcolor: "#f8fafc",
-                                            objectFit: "cover"
+                                            objectFit: "contain",
+                                            display: "block"
                                         }}
                                     />
 
