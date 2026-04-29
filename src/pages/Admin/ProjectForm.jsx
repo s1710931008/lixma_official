@@ -30,11 +30,12 @@ function toFormData(item) {
             item.gallery?.length > 0
                 ? item.gallery
                 : item.image
-                  ? [{ image: item.image, alt: item.title || "" }]
-                  : []
+                    ? [{ image: item.image, alt: item.title || "" }]
+                    : []
     };
 }
 
+//載入canvas圖片
 function loadCanvasImage(src) {
     return new Promise((resolve, reject) => {
         const image = new Image();
@@ -44,6 +45,7 @@ function loadCanvasImage(src) {
         image.src = src;
     });
 }
+
 
 function getCompositeLayout(count, width, height, gap) {
     if (count <= 1) {
@@ -163,8 +165,9 @@ function getCompositeLayout(count, width, height, gap) {
     }));
 }
 
+
 async function createCompositeImage(gallery) {
-    const images = gallery.filter((item) => item.image).slice(0, 8);
+    const images = gallery.filter((item) => item.image).slice(0, 8); //最多 8 張
 
     if (images.length === 0) {
         throw new Error("請先新增照片集");
@@ -177,7 +180,7 @@ async function createCompositeImage(gallery) {
     const context = canvas.getContext("2d");
     const width = 1600;
     const height = 1120;
-    const gap = 12;
+    const gap = 12; //代表每張圖之間留
 
     canvas.width = width;
     canvas.height = height;
@@ -216,7 +219,7 @@ async function createCompositeImage(gallery) {
         drawCover(image, cell.x, cell.y, cell.width, cell.height);
     });
 
-    return canvas.toDataURL("image/jpeg", 0.86);
+    return canvas.toDataURL("image/jpeg", 0.86); //轉換為base64格式的圖片data:image/jpeg;base64,...
 }
 
 async function getResponseError(res, fallback) {
@@ -275,6 +278,7 @@ export default function ProjectForm() {
         }));
     }
 
+    //2026-04-29修正，案場首頁圖不用浮水印
     async function handleImageUpload(event) {
         const file = event.target.files?.[0];
         event.target.value = "";
@@ -285,6 +289,7 @@ export default function ProjectForm() {
         setMessage("");
 
         try {
+            //2026-04-29修正，案場首頁圖不用浮水印
             const imageData = await resizeImageFile(file, {
                 watermarkText: "LIXMA"
             });
@@ -296,6 +301,7 @@ export default function ProjectForm() {
         }
     }
 
+    //2026-04-29修正，案場相簿不用浮水印
     async function handleGalleryUpload(event, index) {
         const file = event.target.files?.[0];
         event.target.value = "";
@@ -314,6 +320,7 @@ export default function ProjectForm() {
         }
     }
 
+    //產生彙整封面
     async function handleCreateCompositeCover() {
         setCreatingCover(true);
         setMessage("");
@@ -324,7 +331,7 @@ export default function ProjectForm() {
         } catch (err) {
             setMessage(
                 err.message ||
-                    "產生彙整封面失敗，若使用外部 URL，請改用自行上傳照片。"
+                "產生彙整封面失敗，若使用外部 URL，請改用自行上傳照片。"
             );
         } finally {
             setCreatingCover(false);
