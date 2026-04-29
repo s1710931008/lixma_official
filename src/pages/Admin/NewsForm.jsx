@@ -5,19 +5,23 @@ import Box from "@mui/material/Box";
 import Button from "@mui/material/Button";
 import Checkbox from "@mui/material/Checkbox";
 import Container from "@mui/material/Container";
+import Divider from "@mui/material/Divider";
 import FormControlLabel from "@mui/material/FormControlLabel";
+import IconButton from "@mui/material/IconButton";
+import MenuItem from "@mui/material/MenuItem";
 import Stack from "@mui/material/Stack";
 import TextField from "@mui/material/TextField";
 import Typography from "@mui/material/Typography";
+import { Plus, Trash2 } from "lucide-react";
 import { newsData as localNewsData } from "../../data/newsData";
 
 const API_BASE = "http://localhost:3000/api/admin/news";
 
 const noDateAnimationSx = {
     "& .MuiInputBase-root, & .MuiInputBase-input, & .MuiInputLabel-root, & .MuiOutlinedInput-notchedOutline":
-        {
-            transition: "none"
-        }
+    {
+        transition: "none"
+    }
 };
 
 const emptyForm = {
@@ -37,6 +41,16 @@ const emptyForm = {
     features: [],
     gallery: [],
     relatedIds: []
+};
+
+const previewImageSx = {
+    width: 132,
+    height: 82,
+    flex: "0 0 auto",
+    borderRadius: 1,
+    border: "1px solid #e2e8f0",
+    bgcolor: "#f8fafc",
+    objectFit: "cover"
 };
 
 function toFormData(news) {
@@ -66,6 +80,67 @@ async function getResponseError(res, fallback) {
     }
 }
 
+function FormSection({ title, description, onAdd, children }) {
+    return (
+        <Box
+            sx={{
+                border: "1px solid #e2e8f0",
+                borderRadius: 2,
+                p: { xs: 2, sm: 2.5 },
+                bgcolor: "#ffffff"
+            }}
+        >
+            <Stack
+                direction={{ xs: "column", sm: "row" }}
+                spacing={2}
+                sx={{
+                    alignItems: { xs: "flex-start", sm: "center" },
+                    justifyContent: "space-between",
+                    mb: 2
+                }}
+            >
+                <Box>
+                    <Typography variant="h6" fontWeight={800}>
+                        {title}
+                    </Typography>
+
+                    {description && (
+                        <Typography color="text.secondary" sx={{ mt: 0.5 }}>
+                            {description}
+                        </Typography>
+                    )}
+                </Box>
+
+                <Button
+                    type="button"
+                    variant="outlined"
+                    startIcon={<Plus size={18} />}
+                    onClick={onAdd}
+                >
+                    新增
+                </Button>
+            </Stack>
+
+            <Stack spacing={2}>{children}</Stack>
+        </Box>
+    );
+}
+
+function RemoveButton({ label, onClick }) {
+    return (
+        <IconButton
+            type="button"
+            color="error"
+            aria-label={label}
+            title={label}
+            onClick={onClick}
+            sx={{ alignSelf: "flex-start" }}
+        >
+            <Trash2 size={20} />
+        </IconButton>
+    );
+}
+
 export default function NewsForm() {
     const { id } = useParams();
     const navigate = useNavigate();
@@ -75,13 +150,23 @@ export default function NewsForm() {
     const [loading, setLoading] = useState(isEdit);
     const [saving, setSaving] = useState(false);
     const [message, setMessage] = useState("");
+    const [newsOptions, setNewsOptions] = useState(localNewsData);
 
     const title = useMemo(
-        () =>
-            isEdit
-                ? "\u7de8\u8f2f\u6d88\u606f"
-                : "\u65b0\u589e\u6d88\u606f",
+        () => (isEdit ? "編輯消息" : "新增消息"),
         [isEdit]
+    );
+
+    const availableRelatedOptions = useMemo(
+        () =>
+            newsOptions.filter(
+                (item) =>
+                    String(item.id) !== String(form.id) &&
+                    !form.relatedIds.some(
+                        (relatedId) => Number(relatedId) === Number(item.id)
+                    )
+            ),
+        [form.id, form.relatedIds, newsOptions]
     );
 
     function updateField(name, value) {
@@ -112,7 +197,7 @@ export default function NewsForm() {
     function addArrayItem(name, value) {
         setForm((current) => ({
             ...current,
-            [name]: [...current[name], value]
+            [name]: [...(current[name] ?? []), value]
         }));
     }
 
@@ -123,17 +208,40 @@ export default function NewsForm() {
         }));
     }
 
+    function addRelatedNews(relatedId) {
+        const nextId = Number(relatedId);
+
+        if (!Number.isFinite(nextId) || nextId <= 0) return;
+
+        setForm((current) => {
+            if (String(current.id) === String(nextId)) return current;
+            if (current.relatedIds.some((item) => Number(item) === nextId)) {
+                return current;
+            }
+
+            return {
+                ...current,
+                relatedIds: [...current.relatedIds, nextId]
+            };
+        });
+    }
+
+    function getRelatedNews(relatedId) {
+        return newsOptions.find((item) => Number(item.id) === Number(relatedId));
+    }
+
     useEffect(() => {
         if (!isEdit) return;
 
         async function fetchNews() {
             setLoading(true);
             setMessage("");
+
             try {
                 const res = await fetch(`${API_BASE}/${id}`);
 
                 if (!res.ok) {
-                    throw new Error("Failed to fetch news");
+                    throw new Error("取得消息失敗");
                 }
 
                 const data = await res.json();
@@ -145,13 +253,9 @@ export default function NewsForm() {
 
                 if (localItem) {
                     setForm(toFormData(localItem));
-                    setMessage(
-                        "\u7121\u6cd5\u9023\u7dda\u5230 API\uff0c\u76ee\u524d\u8f09\u5165\u672c\u5730\u8cc7\u6599\u4f9b\u9810\u89bd\u3002"
-                    );
+                    setMessage("無法連線到 API，目前載入本地資料供預覽。");
                 } else {
-                    setMessage(
-                        err.message || "Failed to fetch news"
-                    );
+                    setMessage(err.message || "取得消息失敗");
                 }
             } finally {
                 setLoading(false);
@@ -161,6 +265,36 @@ export default function NewsForm() {
         fetchNews();
     }, [id, isEdit]);
 
+    useEffect(() => {
+        let active = true;
+
+        async function fetchNewsOptions() {
+            try {
+                const res = await fetch(API_BASE);
+
+                if (!res.ok) {
+                    throw new Error("取得消息列表失敗");
+                }
+
+                const data = await res.json();
+
+                if (active) {
+                    setNewsOptions(Array.isArray(data) ? data : data.items ?? []);
+                }
+            } catch {
+                if (active) {
+                    setNewsOptions(localNewsData);
+                }
+            }
+        }
+
+        fetchNewsOptions();
+
+        return () => {
+            active = false;
+        };
+    }, []);
+
     async function handleSubmit(event) {
         event.preventDefault();
 
@@ -168,23 +302,26 @@ export default function NewsForm() {
         setMessage("");
 
         try {
-            const res = await fetch(isEdit ? `${API_BASE}/${id}` : API_BASE, {
-                method: isEdit ? "PUT" : "POST",
-                headers: {
-                    "Content-Type": "application/json"
-                },
-                body: JSON.stringify(form)
-            });
+            const res = await fetch(
+                isEdit ? `${API_BASE}/${id}` : API_BASE,
+                {
+                    method: isEdit ? "PUT" : "POST",
+                    headers: {
+                        "Content-Type": "application/json"
+                    },
+                    body: JSON.stringify(form)
+                }
+            );
 
             if (!res.ok) {
                 throw new Error(
-                    await getResponseError(res, "Failed to save news")
+                    await getResponseError(res, "儲存消息失敗")
                 );
             }
 
             navigate("/admin/news");
         } catch (err) {
-            setMessage(err.message || "Failed to save news");
+            setMessage(err.message || "儲存消息失敗");
         } finally {
             setSaving(false);
         }
@@ -194,7 +331,7 @@ export default function NewsForm() {
         return (
             <Container maxWidth="md">
                 <Box sx={{ py: 5, color: "text.secondary" }}>
-                    {"\u8f09\u5165\u4e2d..."}
+                    載入中...
                 </Box>
             </Container>
         );
@@ -216,17 +353,22 @@ export default function NewsForm() {
                             <Typography variant="h4" fontWeight={800}>
                                 {title}
                             </Typography>
+
                             <Typography color="text.secondary" sx={{ mt: 0.5 }}>
                                 Admin / News
                             </Typography>
                         </Box>
 
                         <Button component={Link} to="/admin/news">
-                            {"\u8fd4\u56de\u5217\u8868"}
+                            返回列表
                         </Button>
                     </Stack>
 
-                    {message && <Alert severity="warning">{message}</Alert>}
+                    {message && (
+                        <Alert severity="warning">
+                            {message}
+                        </Alert>
+                    )}
 
                     <TextField
                         label="Slug"
@@ -239,7 +381,7 @@ export default function NewsForm() {
                     />
 
                     <TextField
-                        label={"\u6a19\u984c"}
+                        label="標題"
                         value={form.title}
                         onChange={(event) =>
                             updateField("title", event.target.value)
@@ -250,15 +392,16 @@ export default function NewsForm() {
 
                     <Stack direction={{ xs: "column", sm: "row" }} spacing={2}>
                         <TextField
-                            label={"\u5206\u985e"}
+                            label="分類"
                             value={form.category}
                             onChange={(event) =>
                                 updateField("category", event.target.value)
                             }
                             fullWidth
                         />
+
                         <TextField
-                            label={"\u5e74\u4efd"}
+                            label="年份"
                             value={form.year}
                             onChange={(event) =>
                                 updateField("year", event.target.value)
@@ -269,22 +412,21 @@ export default function NewsForm() {
 
                     <Stack direction={{ xs: "column", sm: "row" }} spacing={2}>
                         <TextField
-                            label={"\u65e5\u671f"}
+                            label="日期"
                             type="date"
                             value={form.date}
                             onChange={(event) =>
                                 updateField("date", event.target.value)
                             }
                             slotProps={{
-                                inputLabel: {
-                                    shrink: true
-                                }
+                                inputLabel: { shrink: true }
                             }}
                             sx={noDateAnimationSx}
                             fullWidth
                         />
+
                         <TextField
-                            label={"\u700f\u89bd\u6b21\u6578"}
+                            label="瀏覽次數"
                             type="number"
                             value={form.views}
                             onChange={(event) =>
@@ -292,8 +434,9 @@ export default function NewsForm() {
                             }
                             fullWidth
                         />
+
                         <TextField
-                            label={"\u95b1\u8b80\u5206\u9418"}
+                            label="閱讀分鐘"
                             type="number"
                             value={form.readMinutes}
                             onChange={(event) =>
@@ -307,13 +450,29 @@ export default function NewsForm() {
                     </Stack>
 
                     <TextField
-                        label={"\u5c01\u9762\u5716\u7247 URL"}
+                        label="封面圖片 URL"
                         value={form.coverImage}
                         onChange={(event) =>
                             updateField("coverImage", event.target.value)
                         }
                         fullWidth
                     />
+
+                    {form.coverImage && (
+                        <Box
+                            component="img"
+                            src={form.coverImage}
+                            alt="封面圖片預覽"
+                            sx={{
+                                width: "100%",
+                                maxHeight: 280,
+                                borderRadius: 2,
+                                border: "1px solid #e2e8f0",
+                                bgcolor: "#f8fafc",
+                                objectFit: "cover"
+                            }}
+                        />
+                    )}
 
                     <FormControlLabel
                         control={
@@ -324,13 +483,13 @@ export default function NewsForm() {
                                 }
                             />
                         }
-                        label={"\u986f\u793a\u734e\u9805\u5340\u584a"}
+                        label="顯示獎項區塊"
                     />
 
                     {form.award && (
                         <Stack spacing={2}>
                             <TextField
-                                label={"\u734e\u9805\u6a19\u984c"}
+                                label="獎項標題"
                                 value={form.awardTitle}
                                 onChange={(event) =>
                                     updateField(
@@ -340,11 +499,15 @@ export default function NewsForm() {
                                 }
                                 fullWidth
                             />
+
                             <TextField
-                                label={"\u734e\u9805\u8aaa\u660e"}
+                                label="獎項說明"
                                 value={form.awardDesc}
                                 onChange={(event) =>
-                                    updateField("awardDesc", event.target.value)
+                                    updateField(
+                                        "awardDesc",
+                                        event.target.value
+                                    )
                                 }
                                 multiline
                                 minRows={3}
@@ -353,433 +516,372 @@ export default function NewsForm() {
                         </Stack>
                     )}
 
-                    <Box
-                        sx={{
-                            borderTop: "1px solid #e2e8f0",
-                            pt: 3
-                        }}
+                    <Divider />
+
+                    <FormSection
+                        title="文章段落"
+                        description="對應前台的專案概述、技術特色、未來展望等內容。"
+                        onAdd={() =>
+                            addArrayItem("sections", {
+                                title: "",
+                                content: ""
+                            })
+                        }
                     >
-                        <Stack spacing={2}>
+                        {form.sections.length === 0 && (
+                            <Typography color="text.secondary">
+                                尚未新增文章段落
+                            </Typography>
+                        )}
+
+                        {form.sections.map((item, index) => (
                             <Stack
-                                direction="row"
-                                spacing={1}
-                                sx={{
-                                    alignItems: "center",
-                                    justifyContent: "space-between"
-                                }}
+                                key={index}
+                                direction={{ xs: "column", sm: "row" }}
+                                spacing={1.5}
+                                sx={{ alignItems: "flex-start" }}
                             >
-                                <Typography variant="h6" fontWeight={800}>
-                                    {"\u6587\u7ae0\u6bb5\u843d"}
-                                </Typography>
-                                <Button
-                                    variant="outlined"
-                                    onClick={() =>
-                                        addArrayItem("sections", {
-                                            title: "",
-                                            content: ""
-                                        })
-                                    }
-                                >
-                                    {"\u65b0\u589e\u6bb5\u843d"}
-                                </Button>
-                            </Stack>
-
-                            {form.sections.map((item, index) => (
-                                <Box
-                                    key={index}
-                                    sx={{
-                                        p: 2,
-                                        border: "1px solid #e2e8f0",
-                                        borderRadius: 2
-                                    }}
-                                >
-                                    <Stack spacing={2}>
-                                        <TextField
-                                            label={"\u6bb5\u843d\u6a19\u984c"}
-                                            value={item.title}
-                                            onChange={(event) =>
-                                                updateArrayItem(
-                                                    "sections",
-                                                    index,
-                                                    "title",
-                                                    event.target.value
-                                                )
-                                            }
-                                            fullWidth
-                                        />
-                                        <TextField
-                                            label={"\u6bb5\u843d\u5167\u5bb9"}
-                                            value={item.content}
-                                            onChange={(event) =>
-                                                updateArrayItem(
-                                                    "sections",
-                                                    index,
-                                                    "content",
-                                                    event.target.value
-                                                )
-                                            }
-                                            multiline
-                                            minRows={4}
-                                            fullWidth
-                                        />
-                                        <Box>
-                                            <Button
-                                                color="error"
-                                                onClick={() =>
-                                                    removeArrayItem(
-                                                        "sections",
-                                                        index
-                                                    )
-                                                }
-                                            >
-                                                {"\u522a\u9664\u6bb5\u843d"}
-                                            </Button>
-                                        </Box>
-                                    </Stack>
-                                </Box>
-                            ))}
-                        </Stack>
-                    </Box>
-
-                    <Box
-                        sx={{
-                            borderTop: "1px solid #e2e8f0",
-                            pt: 3
-                        }}
-                    >
-                        <Stack spacing={2}>
-                            <Stack
-                                direction="row"
-                                spacing={1}
-                                sx={{
-                                    alignItems: "center",
-                                    justifyContent: "space-between"
-                                }}
-                            >
-                                <Typography variant="h6" fontWeight={800}>
-                                    {"\u7d71\u8a08\u6578\u5b57"}
-                                </Typography>
-                                <Button
-                                    variant="outlined"
-                                    onClick={() =>
-                                        addArrayItem("stats", {
-                                            number: "",
-                                            label: ""
-                                        })
-                                    }
-                                >
-                                    {"\u65b0\u589e\u7d71\u8a08"}
-                                </Button>
-                            </Stack>
-
-                            {form.stats.map((item, index) => (
-                                <Stack
-                                    key={index}
-                                    direction={{ xs: "column", sm: "row" }}
-                                    spacing={2}
-                                    sx={{ alignItems: "center" }}
-                                >
+                                <Stack spacing={1.5} sx={{ flex: 1 }}>
                                     <TextField
-                                        label={"\u6578\u5b57"}
-                                        value={item.number}
+                                        label={`段落標題 ${index + 1}`}
+                                        value={item.title}
                                         onChange={(event) =>
                                             updateArrayItem(
-                                                "stats",
+                                                "sections",
                                                 index,
-                                                "number",
+                                                "title",
                                                 event.target.value
                                             )
                                         }
                                         fullWidth
                                     />
+
                                     <TextField
-                                        label={"\u6a19\u7c64"}
-                                        value={item.label}
+                                        label="段落內容"
+                                        value={item.content}
                                         onChange={(event) =>
                                             updateArrayItem(
-                                                "stats",
+                                                "sections",
                                                 index,
-                                                "label",
+                                                "content",
                                                 event.target.value
                                             )
                                         }
+                                        multiline
+                                        minRows={4}
                                         fullWidth
                                     />
-                                    <Button
-                                        color="error"
-                                        onClick={() =>
-                                            removeArrayItem("stats", index)
-                                        }
-                                    >
-                                        {"\u522a\u9664"}
-                                    </Button>
                                 </Stack>
-                            ))}
-                        </Stack>
-                    </Box>
 
-                    <Box
-                        sx={{
-                            borderTop: "1px solid #e2e8f0",
-                            pt: 3
-                        }}
-                    >
-                        <Stack spacing={2}>
-                            <Stack
-                                direction="row"
-                                spacing={1}
-                                sx={{
-                                    alignItems: "center",
-                                    justifyContent: "space-between"
-                                }}
-                            >
-                                <Typography variant="h6" fontWeight={800}>
-                                    {"\u6280\u8853\u7279\u8272"}
-                                </Typography>
-                                <Button
-                                    variant="outlined"
-                                    onClick={() => addArrayItem("features", "")}
-                                >
-                                    {"\u65b0\u589e\u7279\u8272"}
-                                </Button>
+                                <RemoveButton
+                                    label="刪除段落"
+                                    onClick={() =>
+                                        removeArrayItem("sections", index)
+                                    }
+                                />
                             </Stack>
+                        ))}
+                    </FormSection>
 
-                            {form.features.map((item, index) => (
-                                <Stack
-                                    key={index}
-                                    direction={{ xs: "column", sm: "row" }}
-                                    spacing={2}
-                                    sx={{ alignItems: "center" }}
-                                >
+                    <FormSection
+                        title="數據卡片"
+                        description="對應前台 499、650、325、20 這類統計資料。"
+                        onAdd={() =>
+                            addArrayItem("stats", {
+                                number: "",
+                                label: ""
+                            })
+                        }
+                    >
+                        {form.stats.length === 0 && (
+                            <Typography color="text.secondary">
+                                尚未新增數據卡片
+                            </Typography>
+                        )}
+
+                        {form.stats.map((item, index) => (
+                            <Stack
+                                key={index}
+                                direction={{ xs: "column", sm: "row" }}
+                                spacing={1.5}
+                                sx={{ alignItems: "flex-start" }}
+                            >
+                                <TextField
+                                    label={`數字 ${index + 1}`}
+                                    value={item.number}
+                                    onChange={(event) =>
+                                        updateArrayItem(
+                                            "stats",
+                                            index,
+                                            "number",
+                                            event.target.value
+                                        )
+                                    }
+                                    fullWidth
+                                />
+
+                                <TextField
+                                    label="標籤"
+                                    value={item.label}
+                                    onChange={(event) =>
+                                        updateArrayItem(
+                                            "stats",
+                                            index,
+                                            "label",
+                                            event.target.value
+                                        )
+                                    }
+                                    fullWidth
+                                />
+
+                                <RemoveButton
+                                    label="刪除數據"
+                                    onClick={() =>
+                                        removeArrayItem("stats", index)
+                                    }
+                                />
+                            </Stack>
+                        ))}
+                    </FormSection>
+
+                    <FormSection
+                        title="特色條列"
+                        description="對應前台文章下方的項目符號列表。"
+                        onAdd={() => addArrayItem("features", "")}
+                    >
+                        {form.features.length === 0 && (
+                            <Typography color="text.secondary">
+                                尚未新增特色條列
+                            </Typography>
+                        )}
+
+                        {form.features.map((item, index) => (
+                            <Stack
+                                key={index}
+                                direction={{ xs: "column", sm: "row" }}
+                                spacing={1.5}
+                                sx={{ alignItems: "flex-start" }}
+                            >
+                                <TextField
+                                    label={`特色 ${index + 1}`}
+                                    value={item}
+                                    onChange={(event) =>
+                                        updateTextArrayItem(
+                                            "features",
+                                            index,
+                                            event.target.value
+                                        )
+                                    }
+                                    fullWidth
+                                />
+
+                                <RemoveButton
+                                    label="刪除特色"
+                                    onClick={() =>
+                                        removeArrayItem("features", index)
+                                    }
+                                />
+                            </Stack>
+                        ))}
+                    </FormSection>
+
+                    <FormSection
+                        title="文章圖庫"
+                        description="對應前台內容中的三張並排圖片。"
+                        onAdd={() =>
+                            addArrayItem("gallery", {
+                                image: "",
+                                alt: ""
+                            })
+                        }
+                    >
+                        {form.gallery.length === 0 && (
+                            <Typography color="text.secondary">
+                                尚未新增圖庫圖片
+                            </Typography>
+                        )}
+
+                        {form.gallery.map((item, index) => (
+                            <Stack
+                                key={index}
+                                direction={{ xs: "column", sm: "row" }}
+                                spacing={1.5}
+                                sx={{ alignItems: "flex-start" }}
+                            >
+                                {item.image && (
+                                    <Box
+                                        component="img"
+                                        src={item.image}
+                                        alt={item.alt || `圖庫圖片 ${index + 1}`}
+                                        sx={previewImageSx}
+                                    />
+                                )}
+
+                                <Stack spacing={1.5} sx={{ flex: 1 }}>
                                     <TextField
-                                        label={"\u7279\u8272\u5167\u5bb9"}
+                                        label={`圖片 URL ${index + 1}`}
+                                        value={item.image}
+                                        onChange={(event) =>
+                                            updateArrayItem(
+                                                "gallery",
+                                                index,
+                                                "image",
+                                                event.target.value
+                                            )
+                                        }
+                                        fullWidth
+                                    />
+
+                                    <TextField
+                                        label="替代文字"
+                                        value={item.alt}
+                                        onChange={(event) =>
+                                            updateArrayItem(
+                                                "gallery",
+                                                index,
+                                                "alt",
+                                                event.target.value
+                                            )
+                                        }
+                                        fullWidth
+                                    />
+                                </Stack>
+
+                                <RemoveButton
+                                    label="刪除圖片"
+                                    onClick={() =>
+                                        removeArrayItem("gallery", index)
+                                    }
+                                />
+                            </Stack>
+                        ))}
+                    </FormSection>
+
+                    <FormSection
+                        title="相關消息"
+                        description="下方已列出目前會顯示在文章底部的相關消息。"
+                        onAdd={() => addArrayItem("relatedIds", "")}
+                    >
+                        <TextField
+                            select
+                            label="加入其他消息"
+                            value=""
+                            onChange={(event) =>
+                                addRelatedNews(event.target.value)
+                            }
+                            disabled={availableRelatedOptions.length === 0}
+                            helperText={
+                                availableRelatedOptions.length === 0
+                                    ? "目前沒有其他可加入的消息，既有消息已全部列在下方。"
+                                    : "選擇後會加入到下方相關消息清單。"
+                            }
+                            fullWidth
+                        >
+                            <MenuItem value="" disabled>
+                                {availableRelatedOptions.length === 0
+                                    ? "沒有可加入的消息"
+                                    : "請選擇消息"}
+                            </MenuItem>
+
+                            {availableRelatedOptions.map((item) => (
+                                    <MenuItem key={item.id} value={item.id}>
+                                        {`${item.id} - ${item.title}`}
+                                    </MenuItem>
+                                ))}
+                        </TextField>
+
+                        {form.relatedIds.length === 0 && (
+                            <Typography color="text.secondary">
+                                尚未新增相關消息
+                            </Typography>
+                        )}
+
+                        {form.relatedIds.map((item, index) => (
+                            <Stack
+                                key={index}
+                                direction={{ xs: "column", sm: "row" }}
+                                spacing={1.5}
+                                sx={{ alignItems: "flex-start" }}
+                            >
+                                {getRelatedNews(item)?.coverImage && (
+                                    <Box
+                                        component="img"
+                                        src={getRelatedNews(item).coverImage}
+                                        alt={getRelatedNews(item).title}
+                                        sx={previewImageSx}
+                                    />
+                                )}
+
+                                <Stack spacing={1} sx={{ flex: 1 }}>
+                                    <TextField
+                                        label={`相關消息 ID ${index + 1}`}
+                                        type="number"
                                         value={item}
                                         onChange={(event) =>
                                             updateTextArrayItem(
-                                                "features",
+                                                "relatedIds",
                                                 index,
                                                 event.target.value
+                                                    ? Number(event.target.value)
+                                                    : ""
                                             )
                                         }
                                         fullWidth
                                     />
-                                    <Button
-                                        color="error"
-                                        onClick={() =>
-                                            removeArrayItem("features", index)
-                                        }
-                                    >
-                                        {"\u522a\u9664"}
-                                    </Button>
-                                </Stack>
-                            ))}
-                        </Stack>
-                    </Box>
 
-                    <Box
-                        sx={{
-                            borderTop: "1px solid #e2e8f0",
-                            pt: 3
-                        }}
-                    >
-                        <Stack spacing={2}>
-                            <Stack
-                                direction="row"
-                                spacing={1}
-                                sx={{
-                                    alignItems: "center",
-                                    justifyContent: "space-between"
-                                }}
-                            >
-                                <Typography variant="h6" fontWeight={800}>
-                                    {"\u7167\u7247"}
-                                </Typography>
-                                <Button
-                                    variant="outlined"
-                                    onClick={() =>
-                                        addArrayItem("gallery", {
-                                            image: "",
-                                            alt: ""
-                                        })
-                                    }
-                                >
-                                    {"\u65b0\u589e\u7167\u7247"}
-                                </Button>
-                            </Stack>
-
-                            {form.gallery.map((item, index) => (
-                                <Box
-                                    key={index}
-                                    sx={{
-                                        p: 2,
-                                        border: "1px solid #e2e8f0",
-                                        borderRadius: 2
-                                    }}
-                                >
-                                    <Stack spacing={2}>
-                                        <Stack
-                                            direction={{
-                                                xs: "column",
-                                                sm: "row"
-                                            }}
-                                            spacing={2}
-                                            sx={{ alignItems: "center" }}
-                                        >
-                                            <TextField
-                                                label={"\u5716\u7247 URL"}
-                                                value={item.image}
-                                                onChange={(event) =>
-                                                    updateArrayItem(
-                                                        "gallery",
-                                                        index,
-                                                        "image",
-                                                        event.target.value
-                                                    )
-                                                }
-                                                fullWidth
-                                            />
-                                            <TextField
-                                                label="Alt"
-                                                value={item.alt}
-                                                onChange={(event) =>
-                                                    updateArrayItem(
-                                                        "gallery",
-                                                        index,
-                                                        "alt",
-                                                        event.target.value
-                                                    )
-                                                }
-                                                fullWidth
-                                            />
-                                            <Button
-                                                color="error"
-                                                onClick={() =>
-                                                    removeArrayItem(
-                                                        "gallery",
-                                                        index
-                                                    )
-                                                }
-                                            >
-                                                {"\u522a\u9664"}
-                                            </Button>
-                                        </Stack>
-
-                                        {item.image && (
-                                            <Box
-                                                component="img"
-                                                src={item.image}
-                                                alt={item.alt || ""}
-                                                sx={{
-                                                    width: 180,
-                                                    maxWidth: "100%",
-                                                    height: 100,
-                                                    objectFit: "cover",
-                                                    borderRadius: 1,
-                                                    border: "1px solid #e2e8f0"
-                                                }}
-                                            />
-                                        )}
-                                    </Stack>
-                                </Box>
-                            ))}
-                        </Stack>
-                    </Box>
-
-                    <Box
-                        sx={{
-                            borderTop: "1px solid #e2e8f0",
-                            pt: 3
-                        }}
-                    >
-                        <Stack spacing={2}>
-                            <Stack
-                                direction="row"
-                                spacing={1}
-                                sx={{
-                                    alignItems: "center",
-                                    justifyContent: "space-between"
-                                }}
-                            >
-                                <Typography variant="h6" fontWeight={800}>
-                                    {"\u76f8\u95dc\u6d88\u606f"}
-                                </Typography>
-                                <Button
-                                    variant="outlined"
-                                    onClick={() => addArrayItem("relatedIds", "")}
-                                >
-                                    {"\u65b0\u589e\u76f8\u95dc ID"}
-                                </Button>
-                            </Stack>
-
-                            {form.relatedIds.map((item, index) => {
-                                const related = localNewsData.find(
-                                    (news) => String(news.id) === String(item)
-                                );
-
-                                return (
-                                    <Stack
-                                        key={index}
-                                        direction={{
-                                            xs: "column",
-                                            sm: "row"
-                                        }}
-                                        spacing={2}
-                                        sx={{ alignItems: "center" }}
-                                    >
-                                        <TextField
-                                            label={"\u76f8\u95dc\u6d88\u606f ID"}
-                                            type="number"
-                                            value={item}
-                                            onChange={(event) =>
-                                                updateTextArrayItem(
-                                                    "relatedIds",
-                                                    index,
-                                                    Number(event.target.value)
-                                                )
-                                            }
-                                            fullWidth
-                                        />
-                                        <Typography
-                                            color="text.secondary"
+                                    {getRelatedNews(item) ? (
+                                        <Box
                                             sx={{
-                                                minWidth: {
-                                                    xs: "100%",
-                                                    sm: 240
-                                                }
+                                                p: 1.5,
+                                                border: "1px solid #e2e8f0",
+                                                borderRadius: 1,
+                                                bgcolor: "#f8fafc"
                                             }}
                                         >
-                                            {related?.title ||
-                                                "\u627e\u4e0d\u5230\u5c0d\u61c9\u672c\u5730\u8cc7\u6599"}
-                                        </Typography>
-                                        <Button
-                                            color="error"
-                                            onClick={() =>
-                                                removeArrayItem(
-                                                    "relatedIds",
-                                                    index
-                                                )
-                                            }
-                                        >
-                                            {"\u522a\u9664"}
-                                        </Button>
-                                    </Stack>
-                                );
-                            })}
-                        </Stack>
-                    </Box>
+                                            <Typography
+                                                color="text.secondary"
+                                                variant="body2"
+                                            >
+                                                {getRelatedNews(item).date ||
+                                                    "未設定日期"}
+                                            </Typography>
 
-                    <Stack direction="row" spacing={1} justifyContent="flex-end">
+                                            <Typography fontWeight={700}>
+                                                {getRelatedNews(item).title}
+                                            </Typography>
+                                        </Box>
+                                    ) : (
+                                        <Alert severity="warning">
+                                            找不到 ID {item} 對應的消息
+                                        </Alert>
+                                    )}
+                                </Stack>
+
+                                <RemoveButton
+                                    label="刪除相關消息"
+                                    onClick={() =>
+                                        removeArrayItem("relatedIds", index)
+                                    }
+                                />
+                            </Stack>
+                        ))}
+                    </FormSection>
+
+                    <Stack
+                        direction="row"
+                        spacing={1}
+                        justifyContent="flex-end"
+                    >
                         <Button component={Link} to="/admin/news">
-                            {"\u53d6\u6d88"}
+                            取消
                         </Button>
+
                         <Button
                             type="submit"
                             variant="contained"
                             disabled={saving}
                         >
-                            {saving
-                                ? "\u5132\u5b58\u4e2d..."
-                                : "\u5132\u5b58"}
+                            {saving ? "儲存中..." : "儲存"}
                         </Button>
                     </Stack>
                 </Stack>

@@ -13,9 +13,9 @@ const API_BASE = "http://localhost:3000/api/admin/media";
 
 const noDateAnimationSx = {
     "& .MuiInputBase-root, & .MuiInputBase-input, & .MuiInputLabel-root, & .MuiOutlinedInput-notchedOutline":
-        {
-            transition: "none"
-        }
+    {
+        transition: "none"
+    }
 };
 
 const emptyForm = {
@@ -56,8 +56,8 @@ export default function MediaForm() {
     const title = useMemo(
         () =>
             isEdit
-                ? "\u7de8\u8f2f\u5a92\u9ad4\u5831\u5c0e"
-                : "\u65b0\u589e\u5a92\u9ad4\u5831\u5c0e",
+                ? "編輯媒體報導"
+                : "新增媒體報導",
         [isEdit]
     );
 
@@ -74,11 +74,12 @@ export default function MediaForm() {
         async function fetchMedia() {
             setLoading(true);
             setMessage("");
+
             try {
                 const res = await fetch(`${API_BASE}/${id}`);
 
                 if (!res.ok) {
-                    throw new Error("Failed to fetch media report");
+                    throw new Error("取得媒體報導失敗");
                 }
 
                 const data = await res.json();
@@ -91,7 +92,7 @@ export default function MediaForm() {
                 if (localItem) {
                     setForm(toFormData(localItem));
                 } else {
-                    setMessage(err.message || "Failed to fetch media report");
+                    setMessage(err.message || "取得媒體報導失敗");
                 }
             } finally {
                 setLoading(false);
@@ -112,23 +113,27 @@ export default function MediaForm() {
                 ...form,
                 year: form.year || String(form.date || "").slice(0, 4)
             };
-            const res = await fetch(isEdit ? `${API_BASE}/${id}` : API_BASE, {
-                method: isEdit ? "PUT" : "POST",
-                headers: {
-                    "Content-Type": "application/json"
-                },
-                body: JSON.stringify(payload)
-            });
+
+            const res = await fetch(
+                isEdit ? `${API_BASE}/${id}` : API_BASE,
+                {
+                    method: isEdit ? "PUT" : "POST",
+                    headers: {
+                        "Content-Type": "application/json"
+                    },
+                    body: JSON.stringify(payload)
+                }
+            );
 
             if (!res.ok) {
                 throw new Error(
-                    await getResponseError(res, "Failed to save media report")
+                    await getResponseError(res, "儲存媒體報導失敗")
                 );
             }
 
             navigate("/admin/news");
         } catch (err) {
-            setMessage(err.message || "Failed to save media report");
+            setMessage(err.message || "儲存媒體報導失敗");
         } finally {
             setSaving(false);
         }
@@ -138,7 +143,7 @@ export default function MediaForm() {
         return (
             <Container maxWidth="md">
                 <Box sx={{ py: 5, color: "text.secondary" }}>
-                    {"\u8f09\u5165\u4e2d..."}
+                    載入中...
                 </Box>
             </Container>
         );
@@ -152,43 +157,72 @@ export default function MediaForm() {
                         direction={{ xs: "column", sm: "row" }}
                         spacing={2}
                         sx={{
-                            alignItems: { xs: "flex-start", sm: "center" },
+                            alignItems: {
+                                xs: "flex-start",
+                                sm: "center"
+                            },
                             justifyContent: "space-between"
                         }}
                     >
                         <Box>
-                            <Typography variant="h4" fontWeight={800}>
+                            <Typography
+                                variant="h4"
+                                fontWeight={800}
+                            >
                                 {title}
                             </Typography>
-                            <Typography color="text.secondary" sx={{ mt: 0.5 }}>
+
+                            <Typography
+                                color="text.secondary"
+                                sx={{ mt: 0.5 }}
+                            >
                                 Admin / Media
                             </Typography>
                         </Box>
 
-                        <Button component={Link} to="/admin/news">
-                            {"\u8fd4\u56de\u5217\u8868"}
+                        <Button
+                            component={Link}
+                            to="/admin/news"
+                        >
+                            返回列表
                         </Button>
                     </Stack>
 
-                    {message && <Alert severity="warning">{message}</Alert>}
+                    {message && (
+                        <Alert severity="warning">
+                            {message}
+                        </Alert>
+                    )}
 
                     <TextField
-                        label={"\u6a19\u984c"}
+                        label="標題"
                         value={form.title}
                         onChange={(event) =>
-                            updateField("title", event.target.value)
+                            updateField(
+                                "title",
+                                event.target.value
+                            )
                         }
                         required
                         fullWidth
                     />
 
-                    <Stack direction={{ xs: "column", sm: "row" }} spacing={2}>
+                    <Stack
+                        direction={{
+                            xs: "column",
+                            sm: "row"
+                        }}
+                        spacing={2}
+                    >
                         <TextField
-                            label={"\u65e5\u671f"}
+                            label="日期"
                             type="date"
                             value={form.date}
                             onChange={(event) =>
-                                updateField("date", event.target.value)
+                                updateField(
+                                    "date",
+                                    event.target.value
+                                )
                             }
                             slotProps={{
                                 inputLabel: {
@@ -198,46 +232,64 @@ export default function MediaForm() {
                             sx={noDateAnimationSx}
                             fullWidth
                         />
+
                         <TextField
-                            label={"\u5e74\u4efd"}
+                            label="年份"
                             value={form.year}
                             onChange={(event) =>
-                                updateField("year", event.target.value)
+                                updateField(
+                                    "year",
+                                    event.target.value
+                                )
                             }
                             fullWidth
                         />
                     </Stack>
 
                     <TextField
-                        label={"\u4f86\u6e90"}
+                        label="來源"
                         value={form.source}
                         onChange={(event) =>
-                            updateField("source", event.target.value)
+                            updateField(
+                                "source",
+                                event.target.value
+                            )
                         }
                         fullWidth
                     />
 
                     <TextField
-                        label={"\u9023\u7d50 URL"}
+                        label="連結 URL"
                         value={form.url}
                         onChange={(event) =>
-                            updateField("url", event.target.value)
+                            updateField(
+                                "url",
+                                event.target.value
+                            )
                         }
                         fullWidth
                     />
 
-                    <Stack direction="row" spacing={1} justifyContent="flex-end">
-                        <Button component={Link} to="/admin/news">
-                            {"\u53d6\u6d88"}
+                    <Stack
+                        direction="row"
+                        spacing={1}
+                        justifyContent="flex-end"
+                    >
+                        <Button
+                            component={Link}
+                            to="/admin/news"
+                        >
+                            取消
                         </Button>
+
                         <Button
                             type="submit"
                             variant="contained"
                             disabled={saving}
                         >
                             {saving
-                                ? "\u5132\u5b58\u4e2d..."
-                                : "\u5132\u5b58"}
+                                ? "儲存中..."
+                                : "儲存"}
                         </Button>
                     </Stack>
                 </Stack>

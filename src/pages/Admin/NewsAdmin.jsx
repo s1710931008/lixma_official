@@ -38,7 +38,7 @@ export default function NewsAdmin() {
             const res = await fetch(API_BASE);
 
             if (!res.ok) {
-                throw new Error("Failed to fetch news");
+                throw new Error("取得最新消息失敗");
             }
 
             const data = await res.json();
@@ -59,7 +59,7 @@ export default function NewsAdmin() {
             const res = await fetch(MEDIA_API_BASE);
 
             if (!res.ok) {
-                throw new Error("Failed to fetch media reports");
+                throw new Error("取得媒體報導失敗");
             }
 
             const data = await res.json();
@@ -73,15 +73,11 @@ export default function NewsAdmin() {
 
     async function deleteNews(id) {
         if (usingLocalData) {
-            window.alert(
-                "\u76ee\u524d\u4f7f\u7528\u672c\u5730\u8cc7\u6599\uff0c\u9700\u8981\u555f\u52d5 API \u624d\u80fd\u522a\u9664\u3002"
-            );
+            window.alert("目前使用本地資料，需要啟動 API 才能刪除。");
             return;
         }
 
-        const confirmed = window.confirm(
-            "\u78ba\u5b9a\u8981\u522a\u9664\u9019\u5247\u6d88\u606f\u55ce\uff1f"
-        );
+        const confirmed = window.confirm("確定要刪除這則消息嗎？");
 
         if (!confirmed) return;
 
@@ -91,19 +87,17 @@ export default function NewsAdmin() {
             });
 
             if (!res.ok) {
-                throw new Error("Failed to delete news");
+                throw new Error("刪除消息失敗");
             }
 
             fetchNews();
         } catch (err) {
-            window.alert(err.message || "Failed to delete news");
+            window.alert(err.message || "刪除消息失敗");
         }
     }
 
     async function deleteMedia(id) {
-        const confirmed = window.confirm(
-            "\u78ba\u5b9a\u8981\u522a\u9664\u9019\u5247\u5a92\u9ad4\u5831\u5c0e\u55ce\uff1f"
-        );
+        const confirmed = window.confirm("確定要刪除這則媒體報導嗎？");
 
         if (!confirmed) return;
 
@@ -113,12 +107,12 @@ export default function NewsAdmin() {
             });
 
             if (!res.ok) {
-                throw new Error("Failed to delete media report");
+                throw new Error("刪除媒體報導失敗");
             }
 
             fetchMedia();
         } catch (err) {
-            window.alert(err.message || "Failed to delete media report");
+            window.alert(err.message || "刪除媒體報導失敗");
         }
     }
 
@@ -131,10 +125,13 @@ export default function NewsAdmin() {
     const currentLoading = activeTab === "news" ? loading : mediaLoading;
     const currentPage = pageByTab[activeTab];
     const totalPages = Math.max(1, Math.ceil(currentList.length / PAGE_SIZE));
+
     const pageStart = currentList.length
         ? (currentPage - 1) * PAGE_SIZE + 1
         : 0;
+
     const pageEnd = Math.min(currentPage * PAGE_SIZE, currentList.length);
+
     const pagedList = useMemo(
         () =>
             currentList.slice(
@@ -178,8 +175,9 @@ export default function NewsAdmin() {
                 >
                     <Box>
                         <Typography variant="h4" fontWeight={800}>
-                            {"\u6d88\u606f\u7ba1\u7406"}
+                            消息管理
                         </Typography>
+
                         <Typography color="text.secondary" sx={{ mt: 0.5 }}>
                             Admin / News
                         </Typography>
@@ -189,28 +187,31 @@ export default function NewsAdmin() {
                         {activeTab === "news" && (
                             <>
                                 <Button variant="outlined" onClick={fetchNews}>
-                                    {"\u91cd\u65b0\u8f09\u5165"}
+                                    重新載入
                                 </Button>
+
                                 <Button
                                     variant="contained"
                                     component={Link}
                                     to="/admin/news/create"
                                 >
-                                    {"\u65b0\u589e\u6d88\u606f"}
+                                    新增消息
                                 </Button>
                             </>
                         )}
+
                         {activeTab === "media" && (
                             <>
                                 <Button variant="outlined" onClick={fetchMedia}>
-                                    {"\u91cd\u65b0\u8f09\u5165"}
+                                    重新載入
                                 </Button>
+
                                 <Button
                                     variant="contained"
                                     component={Link}
                                     to="/admin/media/create"
                                 >
-                                    {"\u65b0\u589e\u5a92\u9ad4\u5831\u5c0e"}
+                                    新增媒體報導
                                 </Button>
                             </>
                         )}
@@ -230,19 +231,20 @@ export default function NewsAdmin() {
                         variant={activeTab === "news" ? "contained" : "text"}
                         onClick={() => handleTabChange("news")}
                     >
-                        {"\u6700\u65b0\u6d88\u606f"}
+                        最新消息
                     </Button>
+
                     <Button
                         variant={activeTab === "media" ? "contained" : "text"}
                         onClick={() => handleTabChange("media")}
                     >
-                        {"\u5a92\u9ad4\u5831\u5c0e"}
+                        媒體報導
                     </Button>
                 </Stack>
 
                 {currentLoading && (
                     <Box sx={{ py: 6, color: "text.secondary" }}>
-                        {"\u8f09\u5165\u4e2d..."}
+                        載入中...
                     </Box>
                 )}
 
@@ -255,117 +257,130 @@ export default function NewsAdmin() {
                             color: "text.secondary"
                         }}
                     >
-                        {"\u76ee\u524d\u6c92\u6709\u6d88\u606f"}
+                        目前沒有消息
                     </Box>
                 )}
 
                 <Stack spacing={2}>
-                    {!currentLoading && pagedList.map((item) => (
-                        <Box
-                            key={item.id}
-                            sx={{
-                                p: 2.5,
-                                border: "1px solid #e2e8f0",
-                                borderRadius: 2,
-                                bgcolor: "#ffffff",
-                                display: "grid",
-                                gridTemplateColumns: {
-                                    xs: "1fr",
-                                    md: "1fr auto"
-                                },
-                                gap: 2,
-                                alignItems: "center"
-                            }}
-                        >
-                            <Box>
-                                <Typography variant="h6" fontWeight={700}>
-                                    {item.title}
-                                </Typography>
-
-                                <Stack
-                                    direction="row"
-                                    spacing={1}
-                                    useFlexGap
-                                    flexWrap="wrap"
-                                    sx={{ mt: 1 }}
-                                >
-                                    {item.date && (
-                                        <Chip
-                                            size="small"
-                                            label={`${"\u65e5\u671f"} ${item.date}`}
-                                        />
-                                    )}
-                                    {item.category && (
-                                        <Chip
-                                            size="small"
-                                            label={`${"\u5206\u985e"} ${item.category}`}
-                                        />
-                                    )}
-                                    {item.year && (
-                                        <Chip size="small" label={item.year} />
-                                    )}
-                                </Stack>
-                            </Box>
-
-                            {activeTab === "news" ? (
-                                <Stack direction="row" spacing={1}>
-                                    <Button
-                                        variant="outlined"
-                                        component={Link}
-                                        to={`/news/${item.id}`}
+                    {!currentLoading &&
+                        pagedList.map((item) => (
+                            <Box
+                                key={item.id}
+                                sx={{
+                                    p: 2.5,
+                                    border: "1px solid #e2e8f0",
+                                    borderRadius: 2,
+                                    bgcolor: "#ffffff",
+                                    display: "grid",
+                                    gridTemplateColumns: {
+                                        xs: "1fr",
+                                        md: "1fr auto"
+                                    },
+                                    gap: 2,
+                                    alignItems: "center"
+                                }}
+                            >
+                                <Box>
+                                    <Typography
+                                        variant="h6"
+                                        fontWeight={700}
                                     >
-                                        {"\u9810\u89bd"}
-                                    </Button>
+                                        {item.title}
+                                    </Typography>
 
-                                    <Button
-                                        variant="outlined"
-                                        component={Link}
-                                        to={`/admin/news/edit/${item.id}`}
+                                    <Stack
+                                        direction="row"
+                                        spacing={1}
+                                        useFlexGap
+                                        flexWrap="wrap"
+                                        sx={{ mt: 1 }}
                                     >
-                                        {"\u7de8\u8f2f"}
-                                    </Button>
+                                        {item.date && (
+                                            <Chip
+                                                size="small"
+                                                label={`日期 ${item.date}`}
+                                            />
+                                        )}
 
-                                    <Button
-                                        color="error"
-                                        variant="outlined"
-                                        onClick={() => deleteNews(item.id)}
-                                    >
-                                        {"\u522a\u9664"}
-                                    </Button>
-                                </Stack>
-                            ) : (
-                                <Stack direction="row" spacing={1}>
-                                    {item.url && (
+                                        {item.category && (
+                                            <Chip
+                                                size="small"
+                                                label={`分類 ${item.category}`}
+                                            />
+                                        )}
+
+                                        {item.year && (
+                                            <Chip
+                                                size="small"
+                                                label={item.year}
+                                            />
+                                        )}
+                                    </Stack>
+                                </Box>
+
+                                {activeTab === "news" ? (
+                                    <Stack direction="row" spacing={1}>
                                         <Button
                                             variant="outlined"
-                                            component="a"
-                                            href={item.url}
-                                            target="_blank"
-                                            rel="noreferrer"
+                                            component={Link}
+                                            to={`/news/${item.id}`}
                                         >
-                                            {"\u958b\u555f"}
+                                            預覽
                                         </Button>
-                                    )}
 
-                                    <Button
-                                        variant="outlined"
-                                        component={Link}
-                                        to={`/admin/media/edit/${item.id}`}
-                                    >
-                                        {"\u7de8\u8f2f"}
-                                    </Button>
+                                        <Button
+                                            variant="outlined"
+                                            component={Link}
+                                            to={`/admin/news/edit/${item.id}`}
+                                        >
+                                            編輯
+                                        </Button>
 
-                                    <Button
-                                        color="error"
-                                        variant="outlined"
-                                        onClick={() => deleteMedia(item.id)}
-                                    >
-                                        {"\u522a\u9664"}
-                                    </Button>
-                                </Stack>
-                            )}
-                        </Box>
-                    ))}
+                                        <Button
+                                            color="error"
+                                            variant="outlined"
+                                            onClick={() =>
+                                                deleteNews(item.id)
+                                            }
+                                        >
+                                            刪除
+                                        </Button>
+                                    </Stack>
+                                ) : (
+                                    <Stack direction="row" spacing={1}>
+                                        {item.url && (
+                                            <Button
+                                                variant="outlined"
+                                                component="a"
+                                                href={item.url}
+                                                target="_blank"
+                                                rel="noreferrer"
+                                            >
+                                                開啟
+                                            </Button>
+                                        )}
+
+                                        <Button
+                                            variant="outlined"
+                                            component={Link}
+                                            to={`/admin/media/edit/${item.id}`}
+                                        >
+                                            編輯
+                                        </Button>
+
+                                        <Button
+                                            color="error"
+                                            variant="outlined"
+                                            onClick={() =>
+                                                deleteMedia(item.id)
+                                            }
+                                        >
+                                            刪除
+                                        </Button>
+                                    </Stack>
+                                )}
+                            </Box>
+                        ))}
                 </Stack>
 
                 {!currentLoading && currentList.length > PAGE_SIZE && (
@@ -373,13 +388,19 @@ export default function NewsAdmin() {
                         direction={{ xs: "column", sm: "row" }}
                         spacing={2}
                         sx={{
-                            alignItems: { xs: "flex-start", sm: "center" },
+                            alignItems: {
+                                xs: "flex-start",
+                                sm: "center"
+                            },
                             justifyContent: "space-between",
                             mt: 3
                         }}
                     >
-                        <Typography color="text.secondary" fontWeight={600}>
-                            {`\u986f\u793a ${pageStart}-${pageEnd} \u7b46\uff0c\u5171 ${currentList.length} \u7b46`}
+                        <Typography
+                            color="text.secondary"
+                            fontWeight={600}
+                        >
+                            {`顯示 ${pageStart}-${pageEnd} 筆，共 ${currentList.length} 筆`}
                         </Typography>
 
                         <Pagination
