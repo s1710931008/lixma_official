@@ -96,6 +96,14 @@ CREATE TABLE IF NOT EXISTS projects (
   created_at TEXT DEFAULT CURRENT_TIMESTAMP
 );
 
+CREATE TABLE IF NOT EXISTS project_gallery (
+  id INTEGER PRIMARY KEY AUTOINCREMENT,
+  project_id INTEGER,
+  image TEXT,
+  alt TEXT,
+  sort_order INTEGER
+);
+
 CREATE TABLE IF NOT EXISTS company_history (
   id INTEGER PRIMARY KEY AUTOINCREMENT,
   year TEXT NOT NULL,
@@ -242,6 +250,28 @@ function migrateSchema() {
         });
     }
 
+    const projectsWithoutGallery = db
+        .prepare(`
+            SELECT id, title, image
+            FROM projects
+            WHERE image IS NOT NULL
+              AND image != ''
+              AND NOT EXISTS (
+                SELECT 1
+                FROM project_gallery
+                WHERE project_gallery.project_id = projects.id
+              )
+        `)
+        .all();
+    const insertProjectImage = db.prepare(`
+        INSERT INTO project_gallery (project_id, image, alt, sort_order)
+        VALUES (?, ?, ?, 1)
+    `);
+
+    projectsWithoutGallery.forEach((item) => {
+        insertProjectImage.run(item.id, item.image, item.title);
+    });
+
     const historyCount = db
         .prepare("SELECT COUNT(*) AS count FROM company_history")
         .get();
@@ -306,7 +336,8 @@ function normalizeProjectPayload(body) {
         title: String(body.title || "").trim(),
         desc: body.desc || "",
         category: body.category || "",
-        image: body.image || ""
+        image: body.image || "",
+        gallery: asArray(body.gallery)
     };
 }
 
@@ -550,7 +581,7 @@ function getMedia(id, includeInactive = false) {
 function listProjects(includeInactive = false) {
     const where = includeInactive ? "" : "WHERE is_active = 1";
 
-    return db
+    const projects = db
         .prepare(`
             SELECT
               id,
@@ -561,13 +592,18 @@ function listProjects(includeInactive = false) {
               is_active AS isActive
             FROM projects
             ${where}
-            ORDER BY id ASC
+            ORDER BY id DESC
         `)
         .all()
         .map((item) => ({
             ...item,
             isActive: Boolean(item.isActive)
         }));
+
+    return projects.map((item) => ({
+        ...item,
+        gallery: getProjectGallery(item.id)
+    }));
 }
 
 function getProject(id, includeInactive = false) {
@@ -586,7 +622,38 @@ function getProject(id, includeInactive = false) {
         `)
         .get(id);
 
-    return item ? { ...item, isActive: Boolean(item.isActive) } : null;
+    return item
+        ? {
+            ...item,
+            isActive: Boolean(item.isActive),
+            gallery: getProjectGallery(item.id)
+        }
+        : null;
+}
+
+function getProjectGallery(projectId) {
+    return db
+        .prepare(`
+            SELECT image, alt
+            FROM project_gallery
+            WHERE project_id = ?
+            ORDER BY sort_order, id
+        `)
+        .all(projectId);
+}
+
+function replaceProjectGallery(projectId, gallery) {
+    db.prepare("DELETE FROM project_gallery WHERE project_id = ?").run(projectId);
+
+    const insertGallery = db.prepare(`
+        INSERT INTO project_gallery (project_id, image, alt, sort_order)
+        VALUES (?, ?, ?, ?)
+    `);
+
+    gallery.forEach((item, index) => {
+        if (!item?.image) return;
+        insertGallery.run(projectId, item.image, item.alt || "", index + 1);
+    });
 }
 
 function listHistory(includeInactive = false) {
@@ -721,27 +788,34 @@ app.post("/api/admin/projects", (req, res) => {
     }
 
     try {
-        const result = db
-            .prepare(`
-                INSERT INTO projects (
-                  title,
-                  desc,
-                  category,
-                  image,
-                  is_active
-                )
-                VALUES (?, ?, ?, ?, 1)
-            `)
-            .run(
-                payload.title,
-                payload.desc,
-                payload.category,
-                payload.image
-            );
+        const createProject = db.transaction(() => {
+            const result = db
+                .prepare(`
+                    INSERT INTO projects (
+                      title,
+                      desc,
+                      category,
+                      image,
+                      is_active
+                    )
+                    VALUES (?, ?, ?, ?, 1)
+                `)
+                .run(
+                    payload.title,
+                    payload.desc,
+                    payload.category,
+                    payload.image
+                );
+
+            replaceProjectGallery(result.lastInsertRowid, payload.gallery);
+            return result.lastInsertRowid;
+        });
+
+        const id = createProject();
 
         res.status(201).json({
             message: "Project created",
-            id: result.lastInsertRowid
+            id
         });
     } catch (err) {
         res.status(400).json({ message: err.message || "Create failed" });
@@ -756,24 +830,33 @@ app.put("/api/admin/projects/:id", (req, res) => {
     }
 
     try {
-        const result = db
-            .prepare(`
-                UPDATE projects SET
-                  title = ?,
-                  desc = ?,
-                  category = ?,
-                  image = ?
-                WHERE id = ?
-            `)
-            .run(
-                payload.title,
-                payload.desc,
-                payload.category,
-                payload.image,
-                req.params.id
-            );
+        const updateProject = db.transaction(() => {
+            const result = db
+                .prepare(`
+                    UPDATE projects SET
+                      title = ?,
+                      desc = ?,
+                      category = ?,
+                      image = ?
+                    WHERE id = ?
+                `)
+                .run(
+                    payload.title,
+                    payload.desc,
+                    payload.category,
+                    payload.image,
+                    req.params.id
+                );
 
-        if (result.changes === 0) {
+            if (result.changes === 0) {
+                return false;
+            }
+
+            replaceProjectGallery(Number(req.params.id), payload.gallery);
+            return true;
+        });
+
+        if (!updateProject()) {
             return res.status(404).json({ message: "Project not found" });
         }
 

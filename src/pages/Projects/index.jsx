@@ -25,6 +25,7 @@ export default function Projects() {
     const [page, setPage] = useState(1);
     const [open, setOpen] = useState(false);
     const [selectedItem, setSelectedItem] = useState(null);
+    const [selectedPhoto, setSelectedPhoto] = useState("");
     const [items, setItems] = useState(projectData);
 
     const totalPages = Math.max(1, Math.ceil(items.length / PAGE_SIZE));
@@ -64,14 +65,28 @@ export default function Projects() {
         };
     }, []);
 
+    function getProjectPhotos(item) {
+        const gallery = item.gallery?.filter((photo) => photo.image) ?? [];
+
+        if (gallery.length > 0) return gallery;
+        if (item.image) return [{ image: item.image, alt: item.title }];
+        return [];
+    }
+
+    function getCoverImage(item) {
+        return item.image || getProjectPhotos(item)[0]?.image || "";
+    }
+
     const handleOpen = (item) => {
         setSelectedItem(item);
+        setSelectedPhoto(getCoverImage(item));
         setOpen(true);
     };
 
     const handleClose = () => {
         setOpen(false);
         setSelectedItem(null);
+        setSelectedPhoto("");
     };
 
     return (
@@ -133,7 +148,7 @@ export default function Projects() {
                         >
                             <Box className="gallery-media-wrap">
                                 <img
-                                    src={item.image}
+                                    src={getCoverImage(item)}
                                     alt={item.title}
                                     className="gallery-image"
                                 />
@@ -229,7 +244,7 @@ export default function Projects() {
                         <>
                             <Box className="lightbox-image-wrap">
                                 <img
-                                    src={selectedItem.image}
+                                    src={selectedPhoto || getCoverImage(selectedItem)}
                                     alt={selectedItem.title}
                                     className="lightbox-image"
                                 />
@@ -244,6 +259,59 @@ export default function Projects() {
                                 <Typography className="lightbox-desc">
                                     {selectedItem.desc}
                                 </Typography>
+
+                                {getProjectPhotos(selectedItem).length > 1 && (
+                                    <Box
+                                        sx={{
+                                            display: "grid",
+                                            gridTemplateColumns:
+                                                "repeat(auto-fill, minmax(92px, 1fr))",
+                                            gap: 1.25,
+                                            mt: 2.5
+                                        }}
+                                    >
+                                        {getProjectPhotos(selectedItem).map(
+                                            (photo, index) => (
+                                                <Box
+                                                    component="button"
+                                                    type="button"
+                                                    key={`${photo.image}-${index}`}
+                                                    onClick={() =>
+                                                        setSelectedPhoto(photo.image)
+                                                    }
+                                                    sx={{
+                                                        p: 0,
+                                                        height: 70,
+                                                        borderRadius: 1.5,
+                                                        overflow: "hidden",
+                                                        border:
+                                                            selectedPhoto ===
+                                                            photo.image
+                                                                ? "3px solid #22c55e"
+                                                                : "1px solid rgba(255,255,255,0.2)",
+                                                        bgcolor: "transparent",
+                                                        cursor: "pointer"
+                                                    }}
+                                                >
+                                                    <Box
+                                                        component="img"
+                                                        src={photo.image}
+                                                        alt={
+                                                            photo.alt ||
+                                                            `${selectedItem.title} ${index + 1}`
+                                                        }
+                                                        sx={{
+                                                            width: "100%",
+                                                            height: "100%",
+                                                            objectFit: "cover",
+                                                            display: "block"
+                                                        }}
+                                                    />
+                                                </Box>
+                                            )
+                                        )}
+                                    </Box>
+                                )}
                             </Box>
                         </>
                     )}
