@@ -6,58 +6,58 @@ import { useEffect, useRef, useState } from "react";
 import SolarPowerIcon from "@mui/icons-material/SolarPower";
 import EngineeringIcon from "@mui/icons-material/Engineering";
 import MonitorHeartIcon from "@mui/icons-material/MonitorHeart";
-import BoltIcon from "@mui/icons-material/Bolt";
 import ArrowOutwardIcon from "@mui/icons-material/ArrowOutward";
 import AutoAwesomeIcon from "@mui/icons-material/AutoAwesome";
 
 import "./Home.css";
 
-/* 👇 捲動動畫元件 <Reveal delay={200}> */
 function Reveal({ children, delay = 0 }) {
     const ref = useRef(null);
-    const [visible, setVisible] = useState(false); //一開始是false，還沒進入畫面
+    const [visible, setVisible] = useState(false);
 
     useEffect(() => {
-        const observer = new IntersectionObserver( //監聽元素有沒有出現在畫面裡
-            ([entry]) => { //entry就是被監聽的元素
-                if (entry.isIntersecting) { //是否進入可視區
-                    setVisible(true); //如果是，就變成true，加上is-visible這個class
+        const observer = new IntersectionObserver(
+            ([entry]) => {
+                if (entry.isIntersecting) {
+                    setVisible(true);
                 }
             },
-            { threshold: 0.2 } //0.2代表當元素有20%進入畫面時，就觸發
+            { threshold: 0.2 }
         );
 
-        if (ref.current) observer.observe(ref.current); //開始監聽
+        if (ref.current) observer.observe(ref.current);
 
-        return () => observer.disconnect(); //停止監聽
+        return () => observer.disconnect();
     }, []);
 
     return (
         <div
-            ref={ref} //把這個div掛到ref上，讓observer可以監聽
-            className={`reveal ${visible ? "is-visible" : ""}`} //如果visible是true，就加上is-visible這個class
-            style={{ transitionDelay: `${delay}ms` }} //延遲時間
+            ref={ref}
+            className={`reveal ${visible ? "is-visible" : ""}`}
+            style={{ transitionDelay: `${delay}ms` }}
         >
-            {children} {/* 傳進來的東西 */}
+            {children}
         </div>
     );
 }
 
-
 const services = [
     {
-        title: "系統規劃",
-        desc: "依據場域條件、用電需求與預算配置，提供完整的太陽能發電系統規劃與效益評估。",
+        title: "太陽能系統規劃",
+        desc: "依據場域條件、用電需求與投資目標，提供案場評估、配置規劃與效益試算。",
+        image: "/images/topic4-bg3.jpg",
         icon: <SolarPowerIcon fontSize="large" />,
     },
     {
-        title: "工程建置",
-        desc: "從設計、施工到併網流程，由專業團隊執行，確保品質、效率與安全性。",
+        title: "工程設計與施工",
+        desc: "整合結構、機電與施工管理，確保系統安全、穩定並符合長期營運需求。",
+        image: "/images/topic4-bg2.jpg",
         icon: <EngineeringIcon fontSize="large" />,
     },
     {
-        title: "維運管理",
-        desc: "持續監控設備運作狀態，提供維護與效能優化建議，讓系統長期穩定發電。",
+        title: "維運監控服務",
+        desc: "透過監控與維護流程追蹤發電表現，協助案場維持穩定收益與設備壽命。",
+        image: "/images/about_pic3.jpg",
         icon: <MonitorHeartIcon fontSize="large" />,
     },
 ];
@@ -65,11 +65,9 @@ const services = [
 export default function Home() {
     return (
         <Box className="home-page">
-            {/* Hero */}
             <Box className="home-hero">
                 <Box className="home-hero-overlay" />
                 <Container maxWidth="xl" className="home-hero-container">
-
                     <Box className="home-hero-inner">
                         <Reveal>
                             <Box className="home-hero-right">
@@ -82,23 +80,21 @@ export default function Home() {
                                 </Typography>
 
                                 <Typography className="home-main-title">
-                                    攜手建立綠色永續生活
+                                    打造穩定可靠的太陽能系統
                                 </Typography>
+
                                 <Reveal delay={200}>
                                     <Typography className="home-main-desc">
-                                        我們致力於以科技力量推動環保解決方案，
-                                        為企業與下一代創造更穩定、更潔淨的未來，
-                                        以整合型綠能規劃打造高效率、可持續的場域價值。
+                                        LIXMA 專注於太陽能系統規劃、工程施工與後續維運，
+                                        協助企業、學校與公共場域導入乾淨能源，創造長期穩定效益。
                                     </Typography>
                                 </Reveal>
-
                             </Box>
                         </Reveal>
                     </Box>
                 </Container>
             </Box>
 
-            {/* Solar section */}
             <Box className="home-solar-section">
                 <Box className="home-solar-overlay" />
 
@@ -113,6 +109,7 @@ export default function Home() {
                                     </Typography>
                                 </Box>
                             </Reveal>
+
                             <Reveal delay={200}>
                                 <Typography className="home-solar-title solar-fade-2">
                                     SOLAR
@@ -123,11 +120,11 @@ export default function Home() {
                                     SYSTEMS
                                 </Typography>
                             </Reveal>
+
                             <Reveal delay={400}>
                                 <Typography className="home-solar-desc solar-fade-3">
-                                    太陽能光電發電系統，結合專業規劃、工程建置與長期維運，
-                                    為企業打造高效、穩定且兼具永續價值的綠能方案，
-                                    讓能源管理不只是成本控制，更是未來競爭力。
+                                    從屋頂型、地面型到建築整合型太陽能系統，
+                                    我們以專業設計與施工品質，協助客戶完成高效穩定的再生能源建置。
                                 </Typography>
                             </Reveal>
                         </Box>
@@ -135,7 +132,6 @@ export default function Home() {
                 </Container>
             </Box>
 
-            {/* Services */}
             <Box className="home-services-section">
                 <Box className="home-services-bg-glow glow-left" />
                 <Box className="home-services-bg-glow glow-right" />
@@ -151,40 +147,48 @@ export default function Home() {
 
                         <Reveal delay={200}>
                             <Typography className="home-services-desc">
-                                提供太陽能光電系統規劃、建置施工、維運管理與節能整合方案，
-                                協助企業與場域打造更穩定、更高效的綠能系統。
+                                從前期評估、系統設計、工程施工到後續維運，
+                                LIXMA 以完整服務流程協助客戶建置可靠的太陽能系統。
                             </Typography>
                         </Reveal>
                     </Box>
 
                     <Box className="home-services-grid pro-layout">
                         {services.map((item, index) => (
-                            <Reveal delay={index * 200}>
-                                <Box className="service-card pro-card" key={item.title}>
-                                    <Box className="service-card-top-line" />
-
-                                    <Box className="service-card-head">
-                                        <Box className="service-card-icon-wrap">
-                                            {item.icon}
-                                        </Box>
-
-                                        <Typography className="service-card-number">
-                                            0{index + 1}
-                                        </Typography>
+                            <Reveal delay={index * 200} key={item.title}>
+                                <Box className="service-card pro-card">
+                                    <Box className="service-card-image-wrap">
+                                        <img
+                                            className="service-card-image"
+                                            src={item.image}
+                                            alt={item.title}
+                                        />
                                     </Box>
 
-                                    <Typography className="service-card-title">
-                                        {item.title}
-                                    </Typography>
+                                    <Box className="service-card-body">
+                                        <Box className="service-card-head">
+                                            <Box className="service-card-icon-wrap">
+                                                {item.icon}
+                                            </Box>
 
-                                    <Typography className="service-card-desc">
-                                        {item.desc}
-                                    </Typography>
+                                            <Typography className="service-card-number">
+                                                0{index + 1}
+                                            </Typography>
+                                        </Box>
 
-                                    <Box className="service-card-footer">
-                                        <Box className="service-card-link">
-                                            查看更多
-                                            <ArrowOutwardIcon className="service-card-link-icon" />
+                                        <Typography className="service-card-title">
+                                            {item.title}
+                                        </Typography>
+
+                                        <Typography className="service-card-desc">
+                                            {item.desc}
+                                        </Typography>
+
+                                        <Box className="service-card-footer">
+                                            <Box className="service-card-link">
+                                                了解更多
+                                                <ArrowOutwardIcon className="service-card-link-icon" />
+                                            </Box>
                                         </Box>
                                     </Box>
                                 </Box>

@@ -1,4 +1,4 @@
-import { useEffect, useMemo, useState } from "react";
+﻿import { useEffect, useMemo, useState } from "react";
 import Box from "@mui/material/Box";
 import Container from "@mui/material/Container";
 import Pagination from "@mui/material/Pagination";
@@ -99,7 +99,7 @@ export default function Projects() {
                     <Box className="projects-breadcrumb">
                         <a href="/">首頁</a>
                         <span>/</span>
-                        <span>專案實績</span>
+                        <span>實績案例</span>
                     </Box>
                 </Container>
             </Box>
@@ -114,13 +114,13 @@ export default function Projects() {
 
                         <Typography className="projects-title">
                             <SolarPowerIcon className="title-icon" />
-                            專案實績
+                            實績案例
                         </Typography>
 
                         <Typography className="projects-subtitle">
-                            從廠房屋頂、校園案場到大型地面電站，
-                            我們持續累積多元場域的建置經驗，
-                            以設計、施工與整合能力，打造兼具效益與美感的綠能作品。
+                            從廠房屋頂、地面型電站到建築整合型太陽能系統，
+                            LIXMA 以穩定施工品質與完整規劃能力，
+                            協助不同場域完成可靠的再生能源建置。
                         </Typography>
                     </Box>
                 </Container>
@@ -131,11 +131,11 @@ export default function Projects() {
                 <Box className="projects-toolbar">
                     <Typography className="projects-section-title">
                         <PhotoLibraryIcon className="section-icon" />
-                        案場照片
+                        工程照片
                     </Typography>
 
                     <Typography className="projects-section-desc">
-                        點擊照片可查看放大圖片
+                        瀏覽各類太陽能系統建置成果
                     </Typography>
                 </Box>
 
@@ -200,7 +200,7 @@ export default function Projects() {
                                 color: "#334155",
                             },
                             "& .Mui-selected": {
-                                backgroundColor: "#10b981 !important",
+                                backgroundColor: "#1c7ed6 !important",
                                 color: "#fff",
                             },
                         }}
@@ -216,7 +216,7 @@ export default function Projects() {
                 fullWidth
                 PaperProps={{
                     sx: {
-                        backgroundColor: "#08111f",
+                        backgroundColor: "#0f2740",
                         borderRadius: 4,
                         overflow: "hidden",
                     },
@@ -287,7 +287,7 @@ export default function Projects() {
                                                         border:
                                                             selectedPhoto ===
                                                             photo.image
-                                                                ? "3px solid #22c55e"
+                                                                ? "3px solid #34d399"
                                                                 : "1px solid rgba(255,255,255,0.2)",
                                                         bgcolor: "transparent",
                                                         cursor: "pointer"
@@ -320,3 +320,4 @@ export default function Projects() {
         </Box>
     );
 }
+

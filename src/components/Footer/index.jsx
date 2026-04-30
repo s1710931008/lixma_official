@@ -6,79 +6,108 @@ import PhoneOutlinedIcon from "@mui/icons-material/PhoneOutlined";
 import PrintOutlinedIcon from "@mui/icons-material/PrintOutlined";
 import EmailOutlinedIcon from "@mui/icons-material/EmailOutlined";
 
+const footerItems = [
+    {
+        icon: LocationOnOutlinedIcon,
+        text: "台中市西屯區工業區一路 68 號",
+    },
+    {
+        icon: PhoneOutlinedIcon,
+        text: "+886-4-3504-8188",
+    },
+    {
+        icon: PrintOutlinedIcon,
+        text: "+886-4-2359-9739",
+    },
+    {
+        icon: EmailOutlinedIcon,
+        text: "service@lixma.com.tw",
+    },
+];
+
 export default function Footer() {
     return (
         <Box
             component="footer"
             sx={{
-                bgcolor: "#4b4949ff",
-                borderTop: "1px solid #e0e0e0",
-                py: { xs: 5, md: 6 },
+                background: "linear-gradient(135deg, #0f2740, #0d3b66)",
+                borderTop: "1px solid #cfe1f6",
+                py: { xs: 5.5, md: 2 },
                 px: 2,
             }}
         >
-            <Box sx={{ maxWidth: 1200, mx: "auto", textAlign: "center", }}>
+            <Box sx={{ maxWidth: 1120, mx: "auto", textAlign: "center" }}>
                 <Typography
                     sx={{
-                        fontSize: { xs: "1.3rem", md: "1.6rem" },
-                        fontWeight: 700,
-                        mb: 3,
+                        fontSize: { xs: "1.4rem", md: "1.7rem" },
+                        fontWeight: 800,
+                        mb: { xs: 3, md: 4 },
                         letterSpacing: 2,
-                        color: "#ffffffff",
+                        color: "#ffffff",
                     }}
                 >
                     LIXMA
                 </Typography>
 
-                <Stack
-                    direction={{ xs: "column", md: "row" }}
-                    spacing={{ xs: 1.5, md: 4 }}
-                    justifyContent="center"
-                    alignItems="center"
-                    flexWrap="wrap"
-                    useFlexGap
+                <Box
                     sx={{
-                        mb: 3,
-                        color: "#fff",
-                        width: "100%",
+                        display: "flex",
                         justifyContent: "center",
-                        alignItems: "center",
+                        width: "100%",
+                        mb: { xs: 3, md: 4 },
                     }}
                 >
-                    <Stack direction="row" spacing={1} alignItems="center">
-                        <LocationOnOutlinedIcon sx={{ fontSize: 20 }} />
-                        <Typography variant="body2" >
-                            台中市南屯區新富路 68 號
-                        </Typography>
-                    </Stack>
+                    <Stack
+                        direction={{ xs: "column", md: "row" }}
+                        spacing={{ xs: 1.6, md: 3.5 }}
+                        alignItems="center"
+                        justifyContent="center"
+                        flexWrap="wrap"
+                        useFlexGap
+                        sx={{
+                            width: "fit-content",
+                            maxWidth: "100%",
+                            mx: "auto",
+                            color: "#fff",
+                        }}
+                    >
+                        {footerItems.map((item) => {
+                            const Icon = item.icon;
 
-                    <Stack direction="row" spacing={1} alignItems="center">
-                        <PhoneOutlinedIcon sx={{ fontSize: 20 }} />
-                        <Typography variant="body2">
-                            +886-4-3504-8188
-                        </Typography>
+                            return (
+                                <Stack
+                                    key={item.text}
+                                    direction="row"
+                                    spacing={1}
+                                    alignItems="center"
+                                    justifyContent="center"
+                                    sx={{
+                                        minWidth: 0,
+                                        textAlign: "center",
+                                    }}
+                                >
+                                    <Icon sx={{ fontSize: 19, flexShrink: 0 }} />
+                                    <Typography
+                                        sx={{
+                                            fontSize: { xs: "0.92rem", md: "0.96rem" },
+                                            lineHeight: 1.6,
+                                            fontWeight: 500,
+                                            color: "rgba(255, 255, 255, 0.94)",
+                                            whiteSpace: { xs: "normal", md: "nowrap" },
+                                        }}
+                                    >
+                                        {item.text}
+                                    </Typography>
+                                </Stack>
+                            );
+                        })}
                     </Stack>
-
-                    <Stack direction="row" spacing={1} alignItems="center">
-                        <PrintOutlinedIcon sx={{ fontSize: 20 }} />
-                        <Typography variant="body2">
-                            +886-4-2359-9739
-                        </Typography>
-                    </Stack>
-
-                    <Stack direction="row" spacing={1} alignItems="center">
-                        <EmailOutlinedIcon sx={{ fontSize: 20 }} />
-                        <Typography variant="body2">
-                            service@lixma.com.tw
-                        </Typography>
-                    </Stack>
-                </Stack>
+                </Box>
 
                 <Typography
-                    variant="body2"
                     sx={{
-                        color: "#ffffffff",
-                        fontSize: "0.85rem",
+                        color: "rgba(255, 255, 255, 0.82)",
+                        fontSize: { xs: "0.84rem", md: "0.9rem" },
                     }}
                 >
                     © 2026 LIXMA. All rights reserved.
