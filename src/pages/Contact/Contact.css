@@ -168,6 +168,11 @@
     cursor: pointer;
 }
 
+.btn:disabled {
+    cursor: not-allowed;
+    opacity: 0.65;
+}
+
 .btn-primary {
     background: #10b981;
     color: #fff;
@@ -175,6 +180,23 @@
 
 .full-width {
     width: 100%;
+}
+
+.form-status {
+    margin: 0 0 14px;
+    padding: 10px 12px;
+    border-radius: 8px;
+    font-size: 14px;
+}
+
+.form-status.success {
+    background: #ecfdf5;
+    color: #047857;
+}
+
+.form-status.error {
+    background: #fef2f2;
+    color: #b91c1c;
 }
 
 /* RWD */

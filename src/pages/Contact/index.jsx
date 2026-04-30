@@ -1,3 +1,5 @@
+import { useState } from "react";
+
 import Box from "@mui/material/Box";
 import Container from "@mui/material/Container";
 import Typography from "@mui/material/Typography";
@@ -10,10 +12,71 @@ import MessageIcon from "@mui/icons-material/Message";
 
 import "./Contact.css";
 
+const MAIL_API = "http://localhost:3000/api/sedMail";
+const MAIL_API_KEY = import.meta.env.VITE_MAIL_API_KEY || "";
+
+const initialForm = {
+    name: "",
+    phone: "",
+    email: "",
+    category: "售後服務",
+    message: "",
+};
+
 export default function Contact() {
+    const [form, setForm] = useState(initialForm);
+    const [status, setStatus] = useState({ type: "", message: "" });
+    const [isSubmitting, setIsSubmitting] = useState(false);
+
+    const updateField = (event) => {
+        const { name, value } = event.target;
+        setForm((current) => ({ ...current, [name]: value }));
+    };
+
+    const handleSubmit = async (event) => {
+        event.preventDefault();
+        setStatus({ type: "", message: "" });
+        setIsSubmitting(true);
+
+        try {
+            const res = await fetch(MAIL_API, {
+                method: "POST",
+                headers: {
+                    "Content-Type": "application/json",
+                    "x-api-key": MAIL_API_KEY,
+                },
+                body: JSON.stringify({
+                    name: form.name.trim(),
+                    email: form.email.trim(),
+                    phone: form.phone.trim(),
+                    category: form.category,
+                    message: form.message.trim(),
+                }),
+            });
+
+            const data = await res.json().catch(() => ({}));
+
+            if (!res.ok || !data.success) {
+                throw new Error(data.message || "送出失敗，請稍後再試");
+            }
+
+            setForm(initialForm);
+            setStatus({
+                type: "success",
+                message: "訊息已送出，我們會盡快與您聯繫",
+            });
+        } catch (error) {
+            setStatus({
+                type: "error",
+                message: error.message || "送出失敗，請稍後再試",
+            });
+        } finally {
+            setIsSubmitting(false);
+        }
+    };
+
     return (
         <Box className="contact-page">
-            {/* breadcrumb */}
             <Box className="contact-breadcrumb-wrap">
                 <Container maxWidth="lg">
                     <Box className="contact-breadcrumb">
@@ -24,7 +87,6 @@ export default function Contact() {
                 </Container>
             </Box>
 
-            {/* header */}
             <Box className="contact-header">
                 <Container maxWidth="lg">
                     <Box className="contact-hero">
@@ -33,17 +95,15 @@ export default function Contact() {
                         </Typography>
 
                         <Typography className="contact-title">
-                            歡迎與我們聯繫
+                            與 LIXMA 聯絡
                         </Typography>
 
                         <Typography className="contact-subtitle">
-                            共同打造綠色能源未來，我們的專業團隊將依據您的需求，
-                            提供太陽能系統與專業諮詢服務。
+                            歡迎留下您的需求與聯絡方式，我們將盡快安排專人回覆。
                         </Typography>
                     </Box>
 
                     <Box className="contact-layout">
-                        {/* 左側資訊 */}
                         <Box className="contact-info-card">
                             <Typography className="contact-info-title">
                                 聯絡資訊
@@ -51,7 +111,7 @@ export default function Contact() {
 
                             <Box className="contact-info-item">
                                 <span>服務項目</span>
-                                <p>太陽能系統 / 雲端監控 / 維運管理</p>
+                                <p>產品詢問 / 售後服務 / 合作洽詢</p>
                             </Box>
 
                             <Box className="contact-info-item">
@@ -60,75 +120,110 @@ export default function Contact() {
                             </Box>
 
                             <Box className="contact-info-item">
-                                <span>聯繫方式</span>
-                                <p>填寫表單，我們將盡快與您聯繫</p>
+                                <span>回覆方式</span>
+                                <p>收到表單後，我們會以電話或 Email 與您聯繫。</p>
                             </Box>
                         </Box>
 
-                        {/* 表單 */}
                         <Box className="contact-form-card">
                             <Typography className="contact-form-title">
-                                填寫諮詢表單
+                                填寫聯絡表單
                             </Typography>
 
-                            <form className="contact-form">
+                            <form className="contact-form" onSubmit={handleSubmit}>
                                 <Box className="form-row two-cols">
-
-                                    {/* 姓名 */}
                                     <div className="form-group">
-                                        <label>姓名</label>
+                                        <label htmlFor="contact-name">姓名</label>
                                         <div className="input-wrap">
                                             <PersonIcon className="input-icon" />
-                                            <input placeholder="請輸入您的姓名" />
+                                            <input
+                                                id="contact-name"
+                                                name="name"
+                                                value={form.name}
+                                                onChange={updateField}
+                                                placeholder="請輸入您的姓名"
+                                                required
+                                            />
                                         </div>
                                     </div>
 
-                                    {/* 電話 */}
                                     <div className="form-group">
-                                        <label>電話</label>
+                                        <label htmlFor="contact-phone">電話</label>
                                         <div className="input-wrap">
                                             <PhoneIcon className="input-icon" />
-                                            <input placeholder="請輸入聯絡電話" />
+                                            <input
+                                                id="contact-phone"
+                                                name="phone"
+                                                value={form.phone}
+                                                onChange={updateField}
+                                                placeholder="請輸入聯絡電話"
+                                                required
+                                            />
                                         </div>
                                     </div>
-
                                 </Box>
 
-                                {/* Email */}
                                 <div className="form-group">
-                                    <label>Email</label>
+                                    <label htmlFor="contact-email">Email</label>
                                     <div className="input-wrap">
                                         <EmailIcon className="input-icon" />
-                                        <input placeholder="your@email.com" />
+                                        <input
+                                            id="contact-email"
+                                            name="email"
+                                            type="email"
+                                            value={form.email}
+                                            onChange={updateField}
+                                            placeholder="your@email.com"
+                                            required
+                                        />
                                     </div>
                                 </div>
 
-                                {/* 分類 */}
                                 <div className="form-group">
-                                    <label>詢問分類</label>
+                                    <label htmlFor="contact-category">詢問類型</label>
                                     <div className="input-wrap">
                                         <CategoryIcon className="input-icon" />
-                                        <select>
-                                            <option>請選擇分類</option>
-                                            <option>太陽能投資</option>
-                                            <option>雲端監控</option>
+                                        <select
+                                            id="contact-category"
+                                            name="category"
+                                            value={form.category}
+                                            onChange={updateField}
+                                        >
+                                            <option>售後服務</option>
                                             <option>產品詢問</option>
-                                            <option>其他</option>
+                                            <option>合作洽詢</option>
+                                            <option>其他問題</option>
                                         </select>
                                     </div>
                                 </div>
 
-                                {/* 訊息 */}
                                 <div className="form-group">
-                                    <label>詢問內容</label>
+                                    <label htmlFor="contact-message">訊息內容</label>
                                     <div className="input-wrap textarea">
                                         <MessageIcon className="input-icon" />
-                                        <textarea placeholder="請描述您的需求..." />
+                                        <textarea
+                                            id="contact-message"
+                                            name="message"
+                                            value={form.message}
+                                            onChange={updateField}
+                                            placeholder="請輸入您的訊息"
+                                            required
+                                        />
                                     </div>
                                 </div>
 
-                                <button className="btn btn-primary full-width">
-                                    送出訊息
+                                {status.message && (
+                                    <p className={`form-status ${status.type}`}>
+                                        {status.message}
+                                    </p>
+                                )}
+
+                                <button
+                                    className="btn btn-primary full-width"
+                                    disabled={isSubmitting}
+                                    type="submit"
+                                >
+                                    {isSubmitting ? "送出中..." : "送出訊息"}
                                 </button>
                             </form>
                         </Box>

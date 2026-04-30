@@ -1,18 +1,24 @@
-import cors from "cors";
+﻿import cors from "cors";
 import crypto from "node:crypto";
 import Database from "better-sqlite3";
 import express from "express";
+import nodemailer from 'nodemailer'
+import dotenv from 'dotenv'
+
 import { dirname, join } from "node:path";
 import { fileURLToPath } from "node:url";
 import { projectData as defaultProjectData } from "../data/projectData.js";
 import { historyData as defaultHistoryData } from "../data/historyData.js";
 
 const __dirname = dirname(fileURLToPath(import.meta.url));
+dotenv.config({ path: join(__dirname, ".env") });
+
 const PORT = Number(process.env.PORT || 3000);
 const DB_PATH = process.env.NEWS_DB_PATH || join(__dirname, "news.db");
 const ADMIN_USERNAME = process.env.ADMIN_USERNAME || "admin";
 const ADMIN_PASSWORD = process.env.ADMIN_PASSWORD || "admin123";
 const ADMIN_TOKEN = process.env.ADMIN_TOKEN || crypto.randomUUID();
+const DEBUG_IP = process.env.DEBUG_IP === "true";
 
 const app = express();
 const db = new Database(DB_PATH);
@@ -355,7 +361,7 @@ function requireAdminAuth(req, res, next) {
         : "";
 
     if (token !== ADMIN_TOKEN) {
-        return res.status(401).json({ message: "請先登入後台" });
+        return res.status(401).json({ message: "隢??餃敺" });
     }
 
     next();
@@ -694,6 +700,148 @@ function getHistoryItem(id, includeInactive = false) {
     return item ? { ...item, isActive: Boolean(item.isActive) } : null;
 }
 
+// 撱箇? transporter嚗撱箔?甈∴?
+const transporter = nodemailer.createTransport({
+    host: process.env.MAIL_HOST,
+    port: Number(process.env.MAIL_PORT),
+    secure: process.env.MAIL_SECURE === 'true',
+    auth: {
+        user: process.env.MAIL_USER,
+        pass: process.env.MAIL_PASS,
+    },
+    tls: {
+        rejectUnauthorized: false,
+    },
+})
+
+// ?? ???炎??SMTP
+transporter.verify((err) => {
+    if (err) {
+        console.error('SMTP connect failed:', err.message)
+    } else {
+        console.log('SMTP server ready')
+    }
+})
+
+// Mail API Route
+async function handleSendMail(req, res) {
+    try {
+        /* ======================
+           1. IP 限制
+           ====================== */
+        const forwarded = req.headers['x-forwarded-for']
+
+        const rawIp = forwarded
+            ? forwarded.split(',')[0].trim()
+            : req.headers['x-real-ip'] || req.socket.remoteAddress
+
+        const ip =
+            rawIp === '::1' || rawIp === '::ffff:127.0.0.1'
+                ? '127.0.0.1'
+                : rawIp?.replace('::ffff:', '')
+
+        const allowedIps = [
+            '10.1.3.101',
+            '10.1.3.100',
+            '10.1.3.254',
+            '210.66.188.162', // WEB Server
+            '127.0.0.1',
+        ]
+
+        if (DEBUG_IP) {
+            console.log('IP:', ip)
+            console.log('remoteAddress:', req.socket.remoteAddress)
+            console.log('x-forwarded-for:', req.headers['x-forwarded-for'])
+            console.log('x-real-ip:', req.headers['x-real-ip'])
+            console.log('origin:', req.headers['origin'])
+            console.log('host:', req.headers['host'])
+        }
+
+        if (!allowedIps.includes(ip)) {
+            console.warn('Blocked IP:', ip)
+
+            return res.status(403).json({
+                success: false,
+                message: 'IP not allowed',
+            })
+        }
+
+        /* ======================
+           2. API Key 驗證
+           ====================== */
+        const apiKey = req.headers['x-api-key']
+
+        if (!apiKey || apiKey !== process.env.MAIL_API_KEY) {
+            return res.status(401).json({
+                success: false,
+                message: 'Unauthorized',
+            })
+        }
+
+        /* ======================
+           3. 參數檢查
+           ====================== */
+        const { name, email, phone, category, message } = req.body
+
+        if (!name || !email || !phone || !message) {
+            return res.status(400).json({
+                success: false,
+                message: 'Missing name / email / phone / message',
+            })
+        }
+
+        const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/
+
+        if (!emailRegex.test(email)) {
+            return res.status(400).json({
+                success: false,
+                message: 'Invalid email format',
+            })
+        }
+
+        const safeCategory = category || '未分類'
+
+        /* ======================
+           4. 寄送 Email
+           ====================== */
+        const mailTo = process.env.MAIL_TO || 'kenny@lixma.com.tw'
+
+        const info = await transporter.sendMail({
+            from: `"LIXMA 聯絡表單" <${process.env.MAIL_USER}>`,
+            to: mailTo
+                .split(',')
+                .map((item) => item.trim())
+                .filter(Boolean),
+            replyTo: email,
+            subject: `LIXMA 聯絡表單 - ${safeCategory}`,
+            text: [
+                `客戶名稱：${name}`,
+                `客戶信箱：${email}`,
+                `客戶電話：${phone}`,
+                `詢問類型：${safeCategory}`,
+                '',
+                `客戶訊息：`,
+                message,
+            ].join('\n'),
+        })
+
+        return res.json({
+            success: true,
+            messageId: info.messageId,
+        })
+    } catch (err) {
+        console.error('Send mail error:', err)
+
+        return res.status(500).json({
+            success: false,
+            message: 'Send mail failed',
+        })
+    }
+}
+
+app.post('/api/sedMail', handleSendMail)
+app.post('/sedMail', handleSendMail)
+
 app.get("/api/health", (req, res) => {
     res.json({ ok: true, dbPath: DB_PATH });
 });
@@ -730,7 +878,7 @@ app.post("/api/admin/login", (req, res) => {
     const password = String(req.body.password || "");
 
     if (username !== ADMIN_USERNAME || password !== ADMIN_PASSWORD) {
-        return res.status(401).json({ message: "帳號或密碼錯誤" });
+        return res.status(401).json({ message: "Invalid username or password" });
     }
 
     res.json({ token: ADMIN_TOKEN });
