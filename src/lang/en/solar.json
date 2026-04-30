@@ -1,0 +1,45 @@
+{
+    "heroBadge": "Rooftop Solar Investment Estimate",
+    "heroTitle": "Estimate Rooftop Solar Investment Benefits",
+    "heroDesc": "Enter your location and usable roof area to estimate capacity, generation, system cost, revenue, and payback period. The result can be sent to our service and sales team for review.",
+    "conditionTitle": "Estimate Conditions",
+    "county": "City / County",
+    "ping": "Usable Roof Area",
+    "note": "The result is a preliminary estimate. Actual returns may vary by roof direction, shading, equipment, construction conditions, and regulations. A professional site evaluation is still required.",
+    "metrics": {
+        "kw": "Estimated Capacity",
+        "price": "Feed-in Tariff",
+        "sun": "Average Sun Hours",
+        "kwh": "Annual Generation"
+    },
+    "units": {
+        "kw": "KW",
+        "price": "NTD / kWh",
+        "sun": "hrs / day",
+        "kwh": "kWh",
+        "year": "years",
+        "ping": "ping"
+    },
+    "financeTitle": "Estimated System Cost",
+    "payback": "Estimated Payback",
+    "income": {
+        "month": "Estimated Monthly Revenue",
+        "year": "Estimated Annual Revenue",
+        "rentMonth": "Monthly Roof Rent",
+        "rentYear": "Annual Roof Rent"
+    },
+    "contactSales": "Contact Sales",
+    "formula": "Formula: Capacity = area x 0.4 KW; annual generation = capacity x sun hours x 365; system cost = capacity x NT$60,000 / KW; rent estimate = sales revenue x 6%.",
+    "modalTitle": "Contact Sales",
+    "modalDesc": "Leave your basic information and we will send your estimate to our service and sales team.",
+    "name": "Name",
+    "phone": "Phone",
+    "email": "Email",
+    "remark": "Remark",
+    "summary": "Estimate Summary",
+    "submit": "Send to Service Team",
+    "submitting": "Sending...",
+    "success": "Your information has been sent. Our team will contact you soon.",
+    "error": "Failed to send. Please try again later.",
+    "noRemark": "None"
+}

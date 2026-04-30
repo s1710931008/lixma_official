@@ -1,0 +1,28 @@
+{
+    "kicker": "CONTACT US",
+    "title": "與 LIXMA 聯絡",
+    "subtitle": "歡迎留下您的需求與聯絡方式，我們將盡快安排專人回覆。",
+    "infoTitle": "聯絡資訊",
+    "serviceLabel": "服務項目",
+    "serviceText": "產品詢問 / 售後服務 / 合作洽詢",
+    "timeLabel": "服務時間",
+    "timeText": "週一至週五 09:00 - 18:00",
+    "replyLabel": "回覆方式",
+    "replyText": "收到表單後，我們會以電話或 Email 與您聯繫。",
+    "formTitle": "填寫聯絡表單",
+    "name": "姓名",
+    "phone": "電話",
+    "email": "Email",
+    "category": "詢問類型",
+    "message": "訊息內容",
+    "placeholders": {
+        "name": "請輸入您的姓名",
+        "phone": "請輸入聯絡電話",
+        "message": "請輸入您的訊息"
+    },
+    "categories": ["售後服務", "產品詢問", "合作洽詢", "其他問題"],
+    "submit": "送出訊息",
+    "submitting": "送出中...",
+    "success": "訊息已送出，我們會盡快與您聯繫",
+    "error": "送出失敗，請稍後再試"
+}

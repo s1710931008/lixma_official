@@ -1,0 +1,28 @@
+{
+    "kicker": "CONTACT US",
+    "title": "与 LIXMA 联系",
+    "subtitle": "欢迎留下您的需求与联系方式，我们将尽快安排专人回复。",
+    "infoTitle": "联系资讯",
+    "serviceLabel": "服务项目",
+    "serviceText": "产品询问 / 售后服务 / 合作洽询",
+    "timeLabel": "服务时间",
+    "timeText": "周一至周五 09:00 - 18:00",
+    "replyLabel": "回复方式",
+    "replyText": "收到表单后，我们会以电话或 Email 与您联系。",
+    "formTitle": "填写联系表单",
+    "name": "姓名",
+    "phone": "电话",
+    "email": "Email",
+    "category": "询问类型",
+    "message": "讯息内容",
+    "placeholders": {
+        "name": "请输入您的姓名",
+        "phone": "请输入联系电话",
+        "message": "请输入您的讯息"
+    },
+    "categories": ["售后服务", "产品询问", "合作洽询", "其他问题"],
+    "submit": "送出讯息",
+    "submitting": "送出中...",
+    "success": "讯息已送出，我们会尽快与您联系",
+    "error": "送出失败，请稍后再试"
+}

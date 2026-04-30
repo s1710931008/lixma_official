@@ -4,6 +4,7 @@ import { Link } from "react-router-dom";
 import Box from "@mui/material/Box";
 import Container from "@mui/material/Container";
 import Typography from "@mui/material/Typography";
+import { useTranslation } from "react-i18next";
 import { mediaData, newsData } from "../../data/newsData";
 import "./News.css";
 
@@ -25,6 +26,7 @@ function hasYear(items, year) {
 }
 
 export default function News() {
+    const { t } = useTranslation();
     const [activeTab, setActiveTab] = useState("news");
     const [activeYear, setActiveYear] = useState("");
     const [apiNewsData, setApiNewsData] = useState(newsData);
@@ -47,12 +49,7 @@ export default function News() {
     }, []);
 
     const currentSource = activeTab === "news" ? apiNewsData : apiMediaData;
-
-    const currentYears = useMemo(
-        () => getYears(currentSource),
-        [currentSource]
-    );
-
+    const currentYears = useMemo(() => getYears(currentSource), [currentSource]);
     const archiveYears = useMemo(
         () => getYears([...apiNewsData, ...apiMediaData]),
         [apiNewsData, apiMediaData]
@@ -61,7 +58,6 @@ export default function News() {
     const selectedYear = currentYears.includes(activeYear)
         ? activeYear
         : currentYears[0] || "";
-
     const currentData = currentSource.filter(
         (item) => getItemYear(item) === selectedYear
     );
@@ -86,16 +82,16 @@ export default function News() {
         <Box className="news-page">
             <Box className="news-hero">
                 <Typography className="news-hero-title">
-                    最新消息
+                    {t("news.title")}
                 </Typography>
             </Box>
 
             <Box className="news-breadcrumb-wrap">
                 <Container maxWidth="lg">
                     <Box className="news-breadcrumb">
-                        <Link to="/">首頁</Link>
+                        <Link to="/">{t("common.home")}</Link>
                         <span>/</span>
-                        <span>最新消息</span>
+                        <span>{t("news.title")}</span>
                     </Box>
                 </Container>
             </Box>
@@ -104,15 +100,14 @@ export default function News() {
                 <Box className="news-layout">
                     <Box className="news-sidebar">
                         <Typography className="archive-title">
-                            Archive
+                            {t("news.archive")}
                         </Typography>
 
                         <Box className="archive-list">
                             {archiveYears.map((year) => (
                                 <button
                                     key={year}
-                                    className={`archive-item ${selectedYear === year ? "active" : ""
-                                        }`}
+                                    className={`archive-item ${selectedYear === year ? "active" : ""}`}
                                     onClick={() => handleYearChange(year)}
                                 >
                                     {year}
@@ -124,25 +119,23 @@ export default function News() {
                     <Box className="news-main">
                         <Box className="news-tabs">
                             <button
-                                className={`news-tab ${activeTab === "news" ? "active" : ""
-                                    }`}
+                                className={`news-tab ${activeTab === "news" ? "active" : ""}`}
                                 onClick={() => handleTabChange("news")}
                             >
-                                最新消息
+                                {t("news.newsTab")}
                             </button>
 
                             <button
-                                className={`news-tab ${activeTab === "media" ? "active" : ""
-                                    }`}
+                                className={`news-tab ${activeTab === "media" ? "active" : ""}`}
                                 onClick={() => handleTabChange("media")}
                             >
-                                媒體報導
+                                {t("news.mediaTab")}
                             </button>
                         </Box>
 
                         <Box className="news-table-head">
-                            <span>標題</span>
-                            <span>日期</span>
+                            <span>{t("news.tableTitle")}</span>
+                            <span>{t("news.tableDate")}</span>
                         </Box>
 
                         <Box className="news-list">
@@ -157,7 +150,7 @@ export default function News() {
 
                                                 {item.award && (
                                                     <span className="award-badge">
-                                                        獲獎
+                                                        {t("news.award")}
                                                     </span>
                                                 )}
                                             </Box>
@@ -201,7 +194,7 @@ export default function News() {
                                 })
                             ) : (
                                 <Box className="news-empty">
-                                    目前沒有資料
+                                    {t("news.empty")}
                                 </Box>
                             )}
                         </Box>

@@ -1,0 +1,15 @@
+{
+    "title": "最新消息",
+    "archive": "Archive",
+    "newsTab": "最新消息",
+    "mediaTab": "媒體報導",
+    "tableTitle": "標題",
+    "tableDate": "日期",
+    "award": "獲獎",
+    "empty": "目前沒有資料",
+    "back": "返回最新消息",
+    "related": "相關消息",
+    "prev": "上一篇",
+    "next": "下一篇",
+    "adminBack": "返回消息管理"
+}

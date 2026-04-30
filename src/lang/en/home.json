@@ -1,4 +1,34 @@
 {
-    "title": "Home",
-    "welcome": "welcome to Home"
+    "hero": {
+        "brand": "LIXMA",
+        "subtitle": "TECH",
+        "title": "Building Reliable Solar Energy Systems",
+        "desc": "LIXMA focuses on solar system planning, engineering, construction, and long-term maintenance to help companies, schools, and public sites adopt clean energy with stable returns."
+    },
+    "solar": {
+        "badge": "SOLAR ENERGY",
+        "titleA": "SOLAR",
+        "titleB": "POWER",
+        "titleC": "SYSTEMS",
+        "desc": "From rooftop and ground-mounted systems to building-integrated solar, we deliver efficient renewable energy projects through professional design and construction quality."
+    },
+    "services": {
+        "title": "Our Services",
+        "desc": "From early assessment, system design, and construction to maintenance, LIXMA provides an integrated service workflow for reliable solar projects.",
+        "learnMore": "Learn More",
+        "items": [
+            {
+                "title": "Solar System Planning",
+                "desc": "We provide site assessment, layout planning, and benefit estimation based on site conditions, energy needs, and investment goals."
+            },
+            {
+                "title": "Engineering and Construction",
+                "desc": "We integrate structural, electrical, and construction management to ensure safety, stability, and long-term operation."
+            },
+            {
+                "title": "O&M Monitoring",
+                "desc": "Monitoring and maintenance workflows help track generation performance and maintain stable returns and equipment lifespan."
+            }
+        ]
+    }
 }

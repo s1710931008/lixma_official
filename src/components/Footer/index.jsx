@@ -5,27 +5,29 @@ import LocationOnOutlinedIcon from "@mui/icons-material/LocationOnOutlined";
 import PhoneOutlinedIcon from "@mui/icons-material/PhoneOutlined";
 import PrintOutlinedIcon from "@mui/icons-material/PrintOutlined";
 import EmailOutlinedIcon from "@mui/icons-material/EmailOutlined";
-
-const footerItems = [
-    {
-        icon: LocationOnOutlinedIcon,
-        text: "台中市西屯區工業區一路 68 號",
-    },
-    {
-        icon: PhoneOutlinedIcon,
-        text: "+886-4-3504-8188",
-    },
-    {
-        icon: PrintOutlinedIcon,
-        text: "+886-4-2359-9739",
-    },
-    {
-        icon: EmailOutlinedIcon,
-        text: "service@lixma.com.tw",
-    },
-];
+import { useTranslation } from "react-i18next";
 
 export default function Footer() {
+    const { t } = useTranslation();
+    const footerItems = [
+        {
+            icon: LocationOnOutlinedIcon,
+            text: t("footer.address"),
+        },
+        {
+            icon: PhoneOutlinedIcon,
+            text: "+886-4-3504-8188",
+        },
+        {
+            icon: PrintOutlinedIcon,
+            text: "+886-4-2359-9739",
+        },
+        {
+            icon: EmailOutlinedIcon,
+            text: "service@lixma.com.tw",
+        },
+    ];
+
     return (
         <Box
             component="footer"
@@ -110,7 +112,7 @@ export default function Footer() {
                         fontSize: { xs: "0.84rem", md: "0.9rem" },
                     }}
                 >
-                    © 2026 LIXMA. All rights reserved.
+                    {t("footer.rights")}
                 </Typography>
             </Box>
         </Box>

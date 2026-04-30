@@ -21,7 +21,9 @@ import { useTranslation } from "react-i18next";
 
 const languages = [
     { value: "tw", label: "中文" },
-    { value: "en", label: "EN" },
+    { value: "en", label: "English" },
+    { value: "cn", label: "简体中文" },
+    { value: "th", label: "ไทย" },
 ];
 
 export default function Nav() {
@@ -80,7 +82,7 @@ export default function Nav() {
 
                         <Box sx={{ display: "flex", alignItems: "center", gap: 0.75, ml: 1 }}>
                             <TranslateIcon fontSize="small" />
-                            <FormControl size="small" sx={{ minWidth: 92 }}>
+                            <FormControl size="small" sx={{ minWidth: 132 }}>
                                 <Select
                                     value={currentLang}
                                     onChange={handleLanguageChange}

@@ -1,4 +1,5 @@
-import { useState } from "react";
+import { useEffect, useMemo, useState } from "react";
+import { useTranslation } from "react-i18next";
 
 import Box from "@mui/material/Box";
 import Container from "@mui/material/Container";
@@ -15,18 +16,34 @@ import "./Contact.css";
 const MAIL_API = "http://localhost:3000/api/sedMail";
 const MAIL_API_KEY = import.meta.env.VITE_MAIL_API_KEY || "";
 
-const initialForm = {
-    name: "",
-    phone: "",
-    email: "",
-    category: "售後服務",
-    message: "",
-};
+function createInitialForm(categories) {
+    return {
+        name: "",
+        phone: "",
+        email: "",
+        category: categories[0] || "",
+        message: "",
+    };
+}
 
 export default function Contact() {
-    const [form, setForm] = useState(initialForm);
+    const { t, i18n } = useTranslation();
+    const categories = useMemo(
+        () => t("contact.categories", { returnObjects: true }),
+        [t, i18n.resolvedLanguage]
+    );
+    const [form, setForm] = useState(() => createInitialForm(categories));
     const [status, setStatus] = useState({ type: "", message: "" });
     const [isSubmitting, setIsSubmitting] = useState(false);
+
+    useEffect(() => {
+        setForm((current) => ({
+            ...current,
+            category: categories.includes(current.category)
+                ? current.category
+                : categories[0] || "",
+        }));
+    }, [categories]);
 
     const updateField = (event) => {
         const { name, value } = event.target;
@@ -57,18 +74,18 @@ export default function Contact() {
             const data = await res.json().catch(() => ({}));
 
             if (!res.ok || !data.success) {
-                throw new Error(data.message || "送出失敗，請稍後再試");
+                throw new Error(data.message || t("contact.error"));
             }
 
-            setForm(initialForm);
+            setForm(createInitialForm(categories));
             setStatus({
                 type: "success",
-                message: "訊息已送出，我們會盡快與您聯繫",
+                message: t("contact.success"),
             });
         } catch (error) {
             setStatus({
                 type: "error",
-                message: error.message || "送出失敗，請稍後再試",
+                message: error.message || t("contact.error"),
             });
         } finally {
             setIsSubmitting(false);
@@ -80,9 +97,9 @@ export default function Contact() {
             <Box className="contact-breadcrumb-wrap">
                 <Container maxWidth="lg">
                     <Box className="contact-breadcrumb">
-                        <a href="/">首頁</a>
+                        <a href="/">{t("common.home")}</a>
                         <span>/</span>
-                        <span>聯絡我們</span>
+                        <span>{t("nav.contact")}</span>
                     </Box>
                 </Container>
             </Box>
@@ -91,49 +108,49 @@ export default function Contact() {
                 <Container maxWidth="lg">
                     <Box className="contact-hero">
                         <Typography className="contact-kicker">
-                            CONTACT US
+                            {t("contact.kicker")}
                         </Typography>
 
                         <Typography className="contact-title">
-                            與 LIXMA 聯絡
+                            {t("contact.title")}
                         </Typography>
 
                         <Typography className="contact-subtitle">
-                            歡迎留下您的需求與聯絡方式，我們將盡快安排專人回覆。
+                            {t("contact.subtitle")}
                         </Typography>
                     </Box>
 
                     <Box className="contact-layout">
                         <Box className="contact-info-card">
                             <Typography className="contact-info-title">
-                                聯絡資訊
+                                {t("contact.infoTitle")}
                             </Typography>
 
                             <Box className="contact-info-item">
-                                <span>服務項目</span>
-                                <p>產品詢問 / 售後服務 / 合作洽詢</p>
+                                <span>{t("contact.serviceLabel")}</span>
+                                <p>{t("contact.serviceText")}</p>
                             </Box>
 
                             <Box className="contact-info-item">
-                                <span>服務時間</span>
-                                <p>週一至週五 09:00 - 18:00</p>
+                                <span>{t("contact.timeLabel")}</span>
+                                <p>{t("contact.timeText")}</p>
                             </Box>
 
                             <Box className="contact-info-item">
-                                <span>回覆方式</span>
-                                <p>收到表單後，我們會以電話或 Email 與您聯繫。</p>
+                                <span>{t("contact.replyLabel")}</span>
+                                <p>{t("contact.replyText")}</p>
                             </Box>
                         </Box>
 
                         <Box className="contact-form-card">
                             <Typography className="contact-form-title">
-                                填寫聯絡表單
+                                {t("contact.formTitle")}
                             </Typography>
 
                             <form className="contact-form" onSubmit={handleSubmit}>
                                 <Box className="form-row two-cols">
                                     <div className="form-group">
-                                        <label htmlFor="contact-name">姓名</label>
+                                        <label htmlFor="contact-name">{t("contact.name")}</label>
                                         <div className="input-wrap">
                                             <PersonIcon className="input-icon" />
                                             <input
@@ -141,14 +158,14 @@ export default function Contact() {
                                                 name="name"
                                                 value={form.name}
                                                 onChange={updateField}
-                                                placeholder="請輸入您的姓名"
+                                                placeholder={t("contact.placeholders.name")}
                                                 required
                                             />
                                         </div>
                                     </div>
 
                                     <div className="form-group">
-                                        <label htmlFor="contact-phone">電話</label>
+                                        <label htmlFor="contact-phone">{t("contact.phone")}</label>
                                         <div className="input-wrap">
                                             <PhoneIcon className="input-icon" />
                                             <input
@@ -156,7 +173,7 @@ export default function Contact() {
                                                 name="phone"
                                                 value={form.phone}
                                                 onChange={updateField}
-                                                placeholder="請輸入聯絡電話"
+                                                placeholder={t("contact.placeholders.phone")}
                                                 required
                                             />
                                         </div>
@@ -164,7 +181,7 @@ export default function Contact() {
                                 </Box>
 
                                 <div className="form-group">
-                                    <label htmlFor="contact-email">Email</label>
+                                    <label htmlFor="contact-email">{t("contact.email")}</label>
                                     <div className="input-wrap">
                                         <EmailIcon className="input-icon" />
                                         <input
@@ -180,7 +197,7 @@ export default function Contact() {
                                 </div>
 
                                 <div className="form-group">
-                                    <label htmlFor="contact-category">詢問類型</label>
+                                    <label htmlFor="contact-category">{t("contact.category")}</label>
                                     <div className="input-wrap">
                                         <CategoryIcon className="input-icon" />
                                         <select
@@ -189,16 +206,15 @@ export default function Contact() {
                                             value={form.category}
                                             onChange={updateField}
                                         >
-                                            <option>售後服務</option>
-                                            <option>產品詢問</option>
-                                            <option>合作洽詢</option>
-                                            <option>其他問題</option>
+                                            {categories.map((category) => (
+                                                <option key={category}>{category}</option>
+                                            ))}
                                         </select>
                                     </div>
                                 </div>
 
                                 <div className="form-group">
-                                    <label htmlFor="contact-message">訊息內容</label>
+                                    <label htmlFor="contact-message">{t("contact.message")}</label>
                                     <div className="input-wrap textarea">
                                         <MessageIcon className="input-icon" />
                                         <textarea
@@ -206,7 +222,7 @@ export default function Contact() {
                                             name="message"
                                             value={form.message}
                                             onChange={updateField}
-                                            placeholder="請輸入您的訊息"
+                                            placeholder={t("contact.placeholders.message")}
                                             required
                                         />
                                     </div>
@@ -223,7 +239,7 @@ export default function Contact() {
                                     disabled={isSubmitting}
                                     type="submit"
                                 >
-                                    {isSubmitting ? "送出中..." : "送出訊息"}
+                                    {isSubmitting ? t("contact.submitting") : t("contact.submit")}
                                 </button>
                             </form>
                         </Box>

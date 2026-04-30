@@ -1,0 +1,15 @@
+{
+    "title": "News",
+    "archive": "Archive",
+    "newsTab": "News",
+    "mediaTab": "Media Reports",
+    "tableTitle": "Title",
+    "tableDate": "Date",
+    "award": "Award",
+    "empty": "No data available",
+    "back": "Back to News",
+    "related": "Related News",
+    "prev": "Previous",
+    "next": "Next",
+    "adminBack": "Back to News Admin"
+}

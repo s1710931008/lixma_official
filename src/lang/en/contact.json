@@ -1,0 +1,28 @@
+{
+    "kicker": "CONTACT US",
+    "title": "Contact LIXMA",
+    "subtitle": "Leave your request and contact information. Our team will get back to you as soon as possible.",
+    "infoTitle": "Contact Information",
+    "serviceLabel": "Services",
+    "serviceText": "Product Inquiry / After-sales Service / Partnership",
+    "timeLabel": "Service Hours",
+    "timeText": "Monday to Friday 09:00 - 18:00",
+    "replyLabel": "Reply Method",
+    "replyText": "After receiving the form, we will contact you by phone or email.",
+    "formTitle": "Contact Form",
+    "name": "Name",
+    "phone": "Phone",
+    "email": "Email",
+    "category": "Inquiry Type",
+    "message": "Message",
+    "placeholders": {
+        "name": "Enter your name",
+        "phone": "Enter your phone number",
+        "message": "Enter your message"
+    },
+    "categories": ["After-sales Service", "Product Inquiry", "Partnership", "Other"],
+    "submit": "Send Message",
+    "submitting": "Sending...",
+    "success": "Your message has been sent. We will contact you soon.",
+    "error": "Failed to send. Please try again later."
+}

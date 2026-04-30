@@ -6,6 +6,7 @@ import Stack from "@mui/material/Stack";
 import Dialog from "@mui/material/Dialog";
 import IconButton from "@mui/material/IconButton";
 import Typography from "@mui/material/Typography";
+import { useTranslation } from "react-i18next";
 
 import CloseIcon from "@mui/icons-material/Close";
 import OpenInFullIcon from "@mui/icons-material/OpenInFull";
@@ -22,6 +23,7 @@ const API_BASE = "http://localhost:3000/api/projects";
 const PAGE_SIZE = 3;
 
 export default function Projects() {
+    const { t } = useTranslation();
     const [page, setPage] = useState(1);
     const [open, setOpen] = useState(false);
     const [selectedItem, setSelectedItem] = useState(null);
@@ -97,9 +99,9 @@ export default function Projects() {
             <Box className="projects-breadcrumb-wrap">
                 <Container maxWidth="lg">
                     <Box className="projects-breadcrumb">
-                        <a href="/">首頁</a>
+                        <a href="/">{t("common.home")}</a>
                         <span>/</span>
-                        <span>實績案例</span>
+                        <span>{t("projects.title")}</span>
                     </Box>
                 </Container>
             </Box>
@@ -109,18 +111,16 @@ export default function Projects() {
                 <Container maxWidth="lg">
                     <Box className="projects-hero-inner">
                         <Typography className="projects-kicker">
-                            PROJECTS
+                            {t("projects.kicker")}
                         </Typography>
 
                         <Typography className="projects-title">
                             <SolarPowerIcon className="title-icon" />
-                            實績案例
+                            {t("projects.title")}
                         </Typography>
 
                         <Typography className="projects-subtitle">
-                            從廠房屋頂、地面型電站到建築整合型太陽能系統，
-                            LIXMA 以穩定施工品質與完整規劃能力，
-                            協助不同場域完成可靠的再生能源建置。
+                            {t("projects.subtitle")}
                         </Typography>
                     </Box>
                 </Container>
@@ -131,11 +131,11 @@ export default function Projects() {
                 <Box className="projects-toolbar">
                     <Typography className="projects-section-title">
                         <PhotoLibraryIcon className="section-icon" />
-                        工程照片
+                        {t("projects.sectionTitle")}
                     </Typography>
 
                     <Typography className="projects-section-desc">
-                        瀏覽各類太陽能系統建置成果
+                        {t("projects.sectionDesc")}
                     </Typography>
                 </Box>
 

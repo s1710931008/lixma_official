@@ -1,0 +1,30 @@
+{
+    "kicker": "LIXMA TECH",
+    "title": "About LIXMA",
+    "desc": "LIXMA focuses on solar systems, energy applications, and smart monitoring, delivering complete green-energy solutions from planning and design to construction and maintenance.",
+    "servicesButton": "Explore Services",
+    "historyButton": "Company History",
+    "introBadge": "Green Energy System Integration Partner",
+    "introQuote": "We turn renewable energy into stable everyday infrastructure through professional engineering.",
+    "introText": "Since its founding, LIXMA has continued to develop solar and energy management expertise, covering site assessment, system construction, monitoring, maintenance, and long-term management.",
+    "stats": [
+        { "value": "20+", "label": "Years of engineering experience" },
+        { "value": "Green", "label": "Solar system integration" },
+        { "value": "Pro", "label": "Engineering and construction" },
+        { "value": "Stable", "label": "O&M monitoring service" }
+    ],
+    "historyTitle": "Company History",
+    "serviceTitle": "Core Services",
+    "valueTitle": "Our Values",
+    "values": [
+        { "title": "Efficient Energy Use", "text": "Helping customers improve energy efficiency and reduce long-term operating costs." },
+        { "title": "Renewable Energy Development", "text": "Introducing solar and smart-energy technologies to support sustainability." },
+        { "title": "Smart Monitoring", "text": "Tracking system performance through monitoring and maintenance to keep operations stable." }
+    ],
+    "services": [
+        { "title": "Solar Systems", "items": ["Rooftop solar", "Ground-mounted plants", "BIPV integration"] },
+        { "title": "Investment Assessment", "items": ["Site evaluation", "Revenue estimation"] },
+        { "title": "Monitoring Systems", "items": ["Smart monitoring", "Generation data management"] },
+        { "title": "O&M Service", "items": ["Regular inspection", "Equipment maintenance"] }
+    ]
+}

@@ -291,12 +291,13 @@
     content: "";
     position: absolute;
     top: 0;
-    right: 0;
-    width: 44%;
+    left: 50%;
+    width: 50%;
     height: 100%;
     background: linear-gradient(180deg,
             rgba(28, 126, 214, 0.08),
             rgba(32, 201, 151, 0.02));
+    border-radius: 0 32px 32px 0;
     pointer-events: none;
 }
 
@@ -332,16 +333,19 @@
 .timeline-col {
     display: flex;
     align-items: center;
+    min-width: 0;
 }
 
 .timeline-col-left {
+    grid-column: 1;
     justify-content: flex-end;
-    padding-right: 58px;
+    padding-right: 56px;
 }
 
 .timeline-col-right {
+    grid-column: 2;
     justify-content: flex-start;
-    padding-left: 58px;
+    padding-left: 56px;
 }
 
 .timeline-dot {
@@ -359,9 +363,6 @@
 }
 
 .timeline-year {
-    position: absolute;
-    top: 50%;
-    transform: translateY(-50%);
     font-size: 38px;
     font-weight: 900;
     line-height: 1;
@@ -369,21 +370,22 @@
     letter-spacing: 1px;
     z-index: 3;
     white-space: nowrap;
+    flex: 0 0 auto;
 }
 
-.timeline-year-left {
-    left: calc(50% - 64px);
-    transform: translate(-100%, -50%);
+.timeline-col-left .timeline-year {
+    order: 2;
+    margin-left: 20px;
 }
 
-.timeline-year-right {
-    left: calc(50% + 64px);
-    transform: translate(0, -50%);
+.timeline-col-right .timeline-year {
+    order: 1;
+    margin-right: 20px;
 }
 
 .timeline-card {
-    max-width: 450px;
-    width: 100%;
+    max-width: 330px;
+    width: min(100%, 330px);
     display: flex;
     align-items: flex-start;
     gap: 14px;
@@ -398,6 +400,14 @@
     transition: transform 0.35s ease, box-shadow 0.35s ease, border-color 0.35s ease;
     position: relative;
     z-index: 2;
+}
+
+.timeline-col-left .timeline-card {
+    order: 1;
+}
+
+.timeline-col-right .timeline-card {
+    order: 2;
 }
 
 .timeline-card:hover {
@@ -582,19 +592,11 @@
     }
 
     .timeline-col-left {
-        padding-right: 52px;
+        padding-right: 46px;
     }
 
     .timeline-col-right {
-        padding-left: 52px;
-    }
-
-    .timeline-year-left {
-        left: calc(50% - 54px);
-    }
-
-    .timeline-year-right {
-        left: calc(50% + 54px);
+        padding-left: 46px;
     }
 }
 
@@ -685,17 +687,18 @@
     }
 
     .timeline-year,
-    .timeline-year-left,
-    .timeline-year-right {
-        position: static;
-        transform: none;
+    .timeline-col-left .timeline-year,
+    .timeline-col-right .timeline-year {
         display: block;
         font-size: 26px;
         margin-bottom: 10px;
+        margin-left: 0;
+        margin-right: 0;
     }
 
     .timeline-card {
         max-width: 100%;
+        width: 100%;
         font-size: 15px;
         line-height: 1.7;
         padding: 18px 16px;

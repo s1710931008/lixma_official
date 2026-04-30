@@ -2,6 +2,7 @@ import Box from "@mui/material/Box";
 import Typography from "@mui/material/Typography";
 import Container from "@mui/material/Container";
 import { useEffect, useRef, useState } from "react";
+import { useTranslation } from "react-i18next";
 
 import SolarPowerIcon from "@mui/icons-material/SolarPower";
 import EngineeringIcon from "@mui/icons-material/Engineering";
@@ -41,28 +42,25 @@ function Reveal({ children, delay = 0 }) {
     );
 }
 
-const services = [
+const serviceAssets = [
     {
-        title: "太陽能系統規劃",
-        desc: "依據場域條件、用電需求與投資目標，提供案場評估、配置規劃與效益試算。",
         image: "/images/topic4-bg3.jpg",
         icon: <SolarPowerIcon fontSize="large" />,
     },
     {
-        title: "工程設計與施工",
-        desc: "整合結構、機電與施工管理，確保系統安全、穩定並符合長期營運需求。",
         image: "/images/topic4-bg2.jpg",
         icon: <EngineeringIcon fontSize="large" />,
     },
     {
-        title: "維運監控服務",
-        desc: "透過監控與維護流程追蹤發電表現，協助案場維持穩定收益與設備壽命。",
         image: "/images/about_pic3.jpg",
         icon: <MonitorHeartIcon fontSize="large" />,
     },
 ];
 
 export default function Home() {
+    const { t } = useTranslation();
+    const services = t("home.services.items", { returnObjects: true });
+
     return (
         <Box className="home-page">
             <Box className="home-hero">
@@ -72,21 +70,20 @@ export default function Home() {
                         <Reveal>
                             <Box className="home-hero-right">
                                 <Typography className="home-brand-title">
-                                    LIXMA
+                                    {t("home.hero.brand")}
                                 </Typography>
 
                                 <Typography className="home-brand-subtitle">
-                                    TECH
+                                    {t("home.hero.subtitle")}
                                 </Typography>
 
                                 <Typography className="home-main-title">
-                                    打造穩定可靠的太陽能系統
+                                    {t("home.hero.title")}
                                 </Typography>
 
                                 <Reveal delay={200}>
                                     <Typography className="home-main-desc">
-                                        LIXMA 專注於太陽能系統規劃、工程施工與後續維運，
-                                        協助企業、學校與公共場域導入乾淨能源，創造長期穩定效益。
+                                        {t("home.hero.desc")}
                                     </Typography>
                                 </Reveal>
                             </Box>
@@ -105,26 +102,25 @@ export default function Home() {
                                 <Box className="home-solar-badge solar-fade-1">
                                     <SolarPowerIcon className="home-solar-badge-icon" />
                                     <Typography className="home-solar-badge-text">
-                                        SOLAR ENERGY
+                                        {t("home.solar.badge")}
                                     </Typography>
                                 </Box>
                             </Reveal>
 
                             <Reveal delay={200}>
                                 <Typography className="home-solar-title solar-fade-2">
-                                    SOLAR
+                                    {t("home.solar.titleA")}
                                     <Box component="span" className="home-solar-title-green">
-                                        POWER
+                                        {t("home.solar.titleB")}
                                     </Box>
                                     <br />
-                                    SYSTEMS
+                                    {t("home.solar.titleC")}
                                 </Typography>
                             </Reveal>
 
                             <Reveal delay={400}>
                                 <Typography className="home-solar-desc solar-fade-3">
-                                    從屋頂型、地面型到建築整合型太陽能系統，
-                                    我們以專業設計與施工品質，協助客戶完成高效穩定的再生能源建置。
+                                    {t("home.solar.desc")}
                                 </Typography>
                             </Reveal>
                         </Box>
@@ -141,14 +137,13 @@ export default function Home() {
                         <Reveal>
                             <Typography className="home-services-title">
                                 <AutoAwesomeIcon className="home-services-title-icon" />
-                                我們的服務
+                                {t("home.services.title")}
                             </Typography>
                         </Reveal>
 
                         <Reveal delay={200}>
                             <Typography className="home-services-desc">
-                                從前期評估、系統設計、工程施工到後續維運，
-                                LIXMA 以完整服務流程協助客戶建置可靠的太陽能系統。
+                                {t("home.services.desc")}
                             </Typography>
                         </Reveal>
                     </Box>
@@ -160,7 +155,7 @@ export default function Home() {
                                     <Box className="service-card-image-wrap">
                                         <img
                                             className="service-card-image"
-                                            src={item.image}
+                                            src={serviceAssets[index].image}
                                             alt={item.title}
                                         />
                                     </Box>
@@ -168,7 +163,7 @@ export default function Home() {
                                     <Box className="service-card-body">
                                         <Box className="service-card-head">
                                             <Box className="service-card-icon-wrap">
-                                                {item.icon}
+                                                {serviceAssets[index].icon}
                                             </Box>
 
                                             <Typography className="service-card-number">
@@ -186,7 +181,7 @@ export default function Home() {
 
                                         <Box className="service-card-footer">
                                             <Box className="service-card-link">
-                                                了解更多
+                                                {t("home.services.learnMore")}
                                                 <ArrowOutwardIcon className="service-card-link-icon" />
                                             </Box>
                                         </Box>

@@ -1,6 +1,7 @@
 import { useEffect, useMemo, useState } from "react";
 import { Link, useParams } from "react-router-dom";
 import { Trophy } from "lucide-react";
+import { useTranslation } from "react-i18next";
 import Box from "@mui/material/Box";
 import Container from "@mui/material/Container";
 import Typography from "@mui/material/Typography";
@@ -11,6 +12,7 @@ import AdminPreviewBack from "../../components/AdminPreviewBack";
 const API_BASE = "http://localhost:3000/api/news";
 
 export default function NewsDetail() {
+    const { t } = useTranslation();
     const { id } = useParams();
 
     const localPage = useMemo(
@@ -92,7 +94,7 @@ export default function NewsDetail() {
         return (
             <Container maxWidth="lg">
                 <Box sx={{ py: 6, color: "text.secondary" }}>
-                    {"\u8f09\u5165\u4e2d..."}
+                    {t("common.loading")}
                 </Box>
             </Container>
         );
@@ -102,10 +104,10 @@ export default function NewsDetail() {
         return (
             <Container maxWidth="lg">
                 <Box sx={{ py: 6 }}>
-                    <h1>{"\u627e\u4e0d\u5230\u6b64\u6d88\u606f"}</h1>
+                    <h1>{t("common.notFound")}</h1>
                     {error && <p>{error}</p>}
                     <Link to="/admin/news">
-                        {"\u8fd4\u56de\u6d88\u606f\u7ba1\u7406"}
+                        {t("news.adminBack")}
                     </Link>
                 </Box>
             </Container>
@@ -121,10 +123,10 @@ export default function NewsDetail() {
                     <nav className="breadcrumbs">
                         <ul className="breadcrumbs-container">
                             <li>
-                                <Link to="/">{"\u9996\u9801"}</Link>
+                                <Link to="/">{t("common.home")}</Link>
                             </li>
                             <li>
-                                <Link to="/news">{"\u6700\u65b0\u6d88\u606f"}</Link>
+                                <Link to="/news">{t("news.title")}</Link>
                             </li>
                             <li>{page.title}</li>
                         </ul>
@@ -135,12 +137,12 @@ export default function NewsDetail() {
             <Container maxWidth="lg">
                 <article className="article-container">
                     <Link to="/news" className="back-button">
-                        {"\u8fd4\u56de\u6700\u65b0\u6d88\u606f"}
+                        {t("news.back")}
                     </Link>
 
                     <header className="article-header">
                         <div className="article-category">
-                            {"\u5206\u985e"} {page.category}
+                            {t("common.category")} {page.category}
                         </div>
 
                         <Typography variant="h3" className="article-title">
@@ -149,14 +151,14 @@ export default function NewsDetail() {
 
                         <div className="article-meta">
                             <div className="meta-item">
-                                {"\u65e5\u671f"} {page.date}
+                                {t("common.date")} {page.date}
                             </div>
                             <div className="meta-item">
-                                {"\u700f\u89bd"} {page.views ?? 0} {"\u6b21"}
+                                {t("common.views")} {page.views ?? 0} {t("common.times")}
                             </div>
                             <div className="meta-item">
-                                {"\u95b1\u8b80\u6642\u9593"}{" "}
-                                {page.readMinutes ?? 3} {"\u5206\u9418"}
+                                {t("common.readTime")}{" "}
+                                {page.readMinutes ?? 3} {t("common.minutes")}
                             </div>
                         </div>
                     </header>
@@ -228,7 +230,7 @@ export default function NewsDetail() {
                                 to={`/news/${prev.id}`}
                                 className="article-nav-card"
                             >
-                                <span>{"\u4e0a\u4e00\u7bc7"}</span>
+                                <span>{t("news.prev")}</span>
                                 <strong>{prev.title}</strong>
                             </Link>
                         )}
@@ -238,7 +240,7 @@ export default function NewsDetail() {
                                 to={`/news/${next.id}`}
                                 className="article-nav-card next"
                             >
-                                <span>{"\u4e0b\u4e00\u7bc7"}</span>
+                                <span>{t("news.next")}</span>
                                 <strong>{next.title}</strong>
                             </Link>
                         )}
@@ -247,7 +249,7 @@ export default function NewsDetail() {
                     {related.length > 0 && (
                         <div className="related-articles">
                             <h2 className="related-title">
-                                {"\u76f8\u95dc\u6d88\u606f"}
+                                {t("news.related")}
                             </h2>
 
                             <div className="related-grid">

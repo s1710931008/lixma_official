@@ -1,16 +1,14 @@
 import { useMemo, useState } from "react";
+import { useTranslation } from "react-i18next";
 import {
     Banknote,
     CalendarClock,
-    CheckCircle2,
     Factory,
     Landmark,
-    Mail,
     MapPin,
     Phone,
     Send,
     Sun,
-    User,
     Wallet,
     X,
     Zap,
@@ -47,7 +45,7 @@ const KW_PER_PING = 0.4;
 const PRICE_PER_KW = 60000;
 const RENT_RATIO = 0.06;
 
-const initialLeadForm = {
+const emptyLeadForm = {
     name: "",
     phone: "",
     email: "",
@@ -66,17 +64,18 @@ function fmtInt(n) {
 }
 
 export default function SolarCalculator() {
+    const { t } = useTranslation();
     const [county, setCounty] = useState("台中市");
     const [ping, setPing] = useState(50);
     const [isLeadOpen, setIsLeadOpen] = useState(false);
-    const [leadForm, setLeadForm] = useState(initialLeadForm);
+    const [leadForm, setLeadForm] = useState(emptyLeadForm);
     const [leadStatus, setLeadStatus] = useState({ type: "", message: "" });
     const [isSubmitting, setIsSubmitting] = useState(false);
 
-    const r = useMemo(() => {
-        const c = COUNTIES.find((x) => x.name === county) || COUNTIES[9];
+    const result = useMemo(() => {
+        const selectedCounty = COUNTIES.find((item) => item.name === county) || COUNTIES[9];
         const kw = ping * KW_PER_PING;
-        const annualKwh = kw * c.sun * 365;
+        const annualKwh = kw * selectedCounty.sun * 365;
         const systemCost = kw * PRICE_PER_KW;
         const annualIncome = annualKwh * SELL_PRICE;
         const monthlyIncome = annualIncome / 12;
@@ -86,7 +85,7 @@ export default function SolarCalculator() {
 
         return {
             kw,
-            sun: c.sun,
+            sun: selectedCounty.sun,
             annualKwh,
             systemCost,
             annualIncome,
@@ -99,36 +98,36 @@ export default function SolarCalculator() {
 
     const metrics = [
         {
-            label: "預估設置容量",
-            value: fmt(r.kw),
-            unit: "KW",
+            label: t("solar.metrics.kw"),
+            value: fmt(result.kw),
+            unit: t("solar.units.kw"),
             icon: <Factory size={20} />,
         },
         {
-            label: "售電躉購費率",
+            label: t("solar.metrics.price"),
             value: fmt(SELL_PRICE),
-            unit: "元 / 度",
+            unit: t("solar.units.price"),
             icon: <Landmark size={20} />,
         },
         {
-            label: "日平均發電時數",
-            value: fmt(r.sun),
-            unit: "小時 / 日",
+            label: t("solar.metrics.sun"),
+            value: fmt(result.sun),
+            unit: t("solar.units.sun"),
             icon: <Sun size={20} />,
         },
         {
-            label: "年發電量",
-            value: fmt(r.annualKwh),
-            unit: "度",
+            label: t("solar.metrics.kwh"),
+            value: fmt(result.annualKwh),
+            unit: t("solar.units.kwh"),
             icon: <Zap size={20} />,
         },
     ];
 
     const incomeRows = [
-        { label: "預估月收益", value: `NT$ ${fmt(r.monthlyIncome)}`, icon: <Wallet size={18} /> },
-        { label: "預估年收益", value: `NT$ ${fmt(r.annualIncome)}`, icon: <Banknote size={18} /> },
-        { label: "屋主月租金", value: `NT$ ${fmt(r.rentMonth)}`, icon: <Wallet size={18} /> },
-        { label: "屋主年租金", value: `NT$ ${fmt(r.rentYear)}`, icon: <Banknote size={18} /> },
+        { label: t("solar.income.month"), value: `NT$ ${fmt(result.monthlyIncome)}`, icon: <Wallet size={18} /> },
+        { label: t("solar.income.year"), value: `NT$ ${fmt(result.annualIncome)}`, icon: <Banknote size={18} /> },
+        { label: t("solar.income.rentMonth"), value: `NT$ ${fmt(result.rentMonth)}`, icon: <Wallet size={18} /> },
+        { label: t("solar.income.rentYear"), value: `NT$ ${fmt(result.rentYear)}`, icon: <Banknote size={18} /> },
     ];
 
     const updateLeadField = (event) => {
@@ -138,23 +137,23 @@ export default function SolarCalculator() {
 
     const buildMailMessage = () =>
         [
-            "太陽能屋頂型投資試算",
+            t("solar.heroBadge"),
             "",
-            "試算內容",
-            `縣市：${county}`,
-            `屋頂可用坪數：${fmt(Number(ping), 0)} 坪`,
-            `預估設置容量：${fmt(r.kw)} KW`,
-            `售電躉購費率：NT$ ${fmt(SELL_PRICE)} / 度`,
-            `日平均發電時數：${fmt(r.sun)} 小時 / 日`,
-            `年發電量：${fmt(r.annualKwh)} 度`,
-            `系統建置費用：NT$ ${fmtInt(r.systemCost)}`,
-            `預估月收益：NT$ ${fmt(r.monthlyIncome)}`,
-            `預估年收益：NT$ ${fmt(r.annualIncome)}`,
-            `屋主月租金：NT$ ${fmt(r.rentMonth)}`,
-            `屋主年租金：NT$ ${fmt(r.rentYear)}`,
-            `預估回收年限：${fmt(r.payback)} 年`,
+            t("solar.summary"),
+            `${t("solar.county")}: ${county}`,
+            `${t("solar.ping")}: ${fmt(Number(ping), 0)} ${t("solar.units.ping")}`,
+            `${t("solar.metrics.kw")}: ${fmt(result.kw)} ${t("solar.units.kw")}`,
+            `${t("solar.metrics.price")}: NT$ ${fmt(SELL_PRICE)} / ${t("solar.units.kwh")}`,
+            `${t("solar.metrics.sun")}: ${fmt(result.sun)} ${t("solar.units.sun")}`,
+            `${t("solar.metrics.kwh")}: ${fmt(result.annualKwh)} ${t("solar.units.kwh")}`,
+            `${t("solar.financeTitle")}: NT$ ${fmtInt(result.systemCost)}`,
+            `${t("solar.income.month")}: NT$ ${fmt(result.monthlyIncome)}`,
+            `${t("solar.income.year")}: NT$ ${fmt(result.annualIncome)}`,
+            `${t("solar.income.rentMonth")}: NT$ ${fmt(result.rentMonth)}`,
+            `${t("solar.income.rentYear")}: NT$ ${fmt(result.rentYear)}`,
+            `${t("solar.payback")}: ${fmt(result.payback)} ${t("solar.units.year")}`,
             "",
-            `備註：${leadForm.note.trim() || "無"}`,
+            `${t("solar.remark")}: ${leadForm.note.trim() || t("solar.noRemark")}`,
         ].join("\n");
 
     const handleLeadSubmit = async (event) => {
@@ -173,7 +172,7 @@ export default function SolarCalculator() {
                     name: leadForm.name.trim(),
                     email: leadForm.email.trim(),
                     phone: leadForm.phone.trim(),
-                    category: "太陽能屋頂型投資試算",
+                    category: t("solar.heroBadge"),
                     message: buildMailMessage(),
                 }),
             });
@@ -181,19 +180,16 @@ export default function SolarCalculator() {
             const data = await res.json().catch(() => ({}));
 
             if (!res.ok || !data.success) {
-                throw new Error(data.message || "送出失敗，請稍後再試");
+                throw new Error(data.message || t("solar.error"));
             }
 
-            setLeadForm(initialLeadForm);
-            setLeadStatus({
-                type: "success",
-                message: "資料已送出，客服或業務人員會盡快與您聯繫。",
-            });
+            setLeadForm(emptyLeadForm);
+            setLeadStatus({ type: "success", message: t("solar.success") });
             setIsLeadOpen(false);
         } catch (error) {
             setLeadStatus({
                 type: "error",
-                message: error.message || "送出失敗，請稍後再試",
+                message: error.message || t("solar.error"),
             });
         } finally {
             setIsSubmitting(false);
@@ -203,318 +199,230 @@ export default function SolarCalculator() {
     return (
         <>
             <style>{`
-                :root {
-                    --bg-0: #eef4ff;
-                    --bg-1: #f7fbff;
-                    --bg-2: #eefaf4;
-                    --text-1: #0f172a;
-                    --text-2: #334155;
-                    --text-3: #64748b;
-                    --blue: #3b82f6;
-                    --cyan: #22d3ee;
-                    --green: #34d399;
-                    --shadow-soft: 0 18px 50px rgba(15, 23, 42, 0.08);
-                    --shadow-strong: 0 28px 80px rgba(15, 23, 42, 0.14);
-                }
-
-                * { box-sizing: border-box; }
-
-                html, body, #root {
-                    margin: 0;
-                    min-height: 100%;
-                }
-
-                body {
-                    font-family: "SF Pro Display", "SF Pro Text", "Noto Sans TC", system-ui, sans-serif;
-                    color: var(--text-1);
-                    background:
-                        radial-gradient(circle at 10% 10%, rgba(96, 165, 250, 0.20), transparent 26%),
-                        radial-gradient(circle at 90% 12%, rgba(45, 212, 191, 0.18), transparent 24%),
-                        radial-gradient(circle at 50% 70%, rgba(255, 255, 255, 0.85), transparent 38%),
-                        linear-gradient(180deg, #edf4ff 0%, #f6fbff 38%, #effaf5 100%);
-                    background-attachment: fixed;
-                }
-
                 .solar-wrap {
-                    font-family: "Noto Sans TC", sans-serif;
                     max-width: 1100px;
                     margin: 0 auto;
                     padding: 32px 20px 60px;
-                    color: #1b1f23;
+                    color: #0f172a;
                 }
 
-                .fade-up { animation: fadeUp 0.8s ease both; }
-                .delay-1 { animation-delay: 0.1s; }
-                .delay-2 { animation-delay: 0.2s; }
-                .delay-3 { animation-delay: 0.3s; }
-
-                @keyframes fadeUp {
-                    from { opacity: 0; transform: translateY(24px); }
-                    to { opacity: 1; transform: translateY(0); }
-                }
-
-                .hero-card {
-                    position: relative;
-                    overflow: hidden;
+                .solar-hero {
                     border-radius: 28px;
                     padding: 32px;
-                    background:
-                        linear-gradient(135deg, rgba(10, 92, 168, 0.96), rgba(27, 160, 127, 0.88)),
-                        linear-gradient(180deg, #707070, #a3a4a5);
-                    color: #fff;
-                    box-shadow: 0 24px 60px rgba(15, 52, 96, 0.18);
                     margin-bottom: 24px;
+                    color: #fff;
+                    background: linear-gradient(135deg, rgba(10, 92, 168, 0.96), rgba(27, 160, 127, 0.88));
+                    box-shadow: 0 24px 60px rgba(15, 52, 96, 0.18);
                 }
 
-                .hero-card::after {
-                    content: "";
-                    position: absolute;
-                    right: -60px;
-                    top: -60px;
-                    width: 220px;
-                    height: 220px;
-                    border-radius: 50%;
-                    background: rgba(255,255,255,0.10);
-                }
-
-                .hero-badge {
+                .solar-badge {
                     display: inline-flex;
                     align-items: center;
                     gap: 8px;
                     padding: 8px 14px;
                     border-radius: 999px;
                     background: rgba(255,255,255,0.14);
-                    backdrop-filter: blur(8px);
+                    border: 1px solid rgba(255,255,255,0.18);
                     font-size: 13px;
                     margin-bottom: 18px;
-                    border: 1px solid rgba(255,255,255,0.18);
                 }
 
-                .hero-title {
-                    font-size: 34px;
-                    font-weight: 800;
-                    line-height: 1.25;
+                .solar-title {
                     margin: 0 0 12px;
-                    letter-spacing: 0;
+                    font-size: 34px;
+                    line-height: 1.25;
+                    font-weight: 800;
                 }
 
-                .hero-desc {
-                    font-size: 14px;
-                    line-height: 1.8;
-                    color: rgba(255,255,255,0.92);
+                .solar-desc {
                     max-width: 760px;
                     margin: 0;
+                    color: rgba(255,255,255,0.92);
+                    line-height: 1.8;
                 }
 
-                .main-grid {
+                .solar-main-grid {
                     display: grid;
                     grid-template-columns: 320px 1fr;
                     gap: 22px;
                     margin-bottom: 22px;
                 }
 
-                .panel,
-                .finance-panel {
+                .solar-panel,
+                .solar-finance-panel {
                     background: #fff;
                     border: 1px solid #e8eef5;
                     border-radius: 24px;
                     box-shadow: 0 14px 34px rgba(16, 24, 40, 0.06);
                 }
 
-                .panel { padding: 22px; }
+                .solar-panel {
+                    padding: 22px;
+                }
 
-                .panel-title {
+                .solar-panel-title {
                     display: flex;
                     align-items: center;
                     gap: 10px;
-                    font-size: 18px;
-                    font-weight: 700;
                     margin: 0 0 18px;
                     color: #17324d;
+                    font-size: 18px;
+                    font-weight: 700;
                 }
 
-                .field-group { margin-bottom: 16px; }
+                .solar-field {
+                    margin-bottom: 16px;
+                }
 
-                .field-label {
+                .solar-label {
                     display: block;
+                    margin-bottom: 8px;
+                    color: #4e647a;
                     font-size: 13px;
                     font-weight: 600;
-                    color: #4e647a;
-                    margin-bottom: 8px;
                 }
 
-                .field-control {
+                .solar-control {
                     width: 100%;
                     height: 48px;
                     border: 1px solid #d7e2ee;
                     border-radius: 14px;
                     padding: 0 14px;
+                    background: #f9fbfd;
                     font-size: 15px;
                     outline: none;
-                    background: #f9fbfd;
-                    transition: all 0.25s ease;
                 }
 
-                textarea.field-control {
+                textarea.solar-control {
                     height: auto;
                     min-height: 96px;
                     padding-top: 12px;
                     resize: vertical;
                 }
 
-                .field-control:focus {
-                    border-color: #1c7ed6;
-                    background: #fff;
-                    box-shadow: 0 0 0 4px rgba(28, 126, 214, 0.10);
-                }
-
-                .sub-note {
+                .solar-note,
+                .solar-formula {
                     margin-top: 14px;
+                    padding: 12px 14px;
+                    border-radius: 14px;
+                    background: #f7fafc;
+                    color: #73879b;
                     font-size: 12px;
                     line-height: 1.7;
-                    color: #73879b;
-                    background: #f7fafc;
-                    border-radius: 14px;
-                    padding: 12px 14px;
                 }
 
-                .metrics-grid {
+                .solar-metrics-grid {
                     display: grid;
                     grid-template-columns: repeat(2, minmax(0, 1fr));
                     gap: 16px;
                 }
 
-                .metric-card {
+                .solar-metric-card,
+                .solar-income-card {
                     background: linear-gradient(180deg, #ffffff, #f7fbff);
                     border: 1px solid #e6eef8;
                     border-radius: 22px;
                     padding: 18px;
-                    min-height: 140px;
-                    transition: transform 0.28s ease, box-shadow 0.28s ease, border-color 0.28s ease;
-                    box-shadow: 0 10px 24px rgba(15, 23, 42, 0.05);
                 }
 
-                .metric-card:hover {
-                    transform: translateY(-6px);
-                    box-shadow: 0 18px 34px rgba(15, 23, 42, 0.10);
-                    border-color: #cfe1f6;
-                }
-
-                .metric-icon {
+                .solar-metric-icon {
                     width: 42px;
                     height: 42px;
-                    border-radius: 14px;
                     display: flex;
                     align-items: center;
                     justify-content: center;
-                    background: linear-gradient(135deg, #e6f4ff, #dff8ef);
-                    color: #1565c0;
                     margin-bottom: 14px;
+                    border-radius: 14px;
+                    color: #1565c0;
+                    background: linear-gradient(135deg, #e6f4ff, #dff8ef);
                 }
 
-                .metric-label {
-                    font-size: 13px;
+                .solar-metric-label,
+                .solar-income-head {
                     color: #66788a;
-                    margin-bottom: 8px;
-                }
-
-                .metric-value {
-                    font-size: 28px;
-                    font-weight: 800;
-                    color: #152536;
-                    line-height: 1.2;
-                }
-
-                .metric-unit {
-                    font-size: 12px;
-                    color: #8a9aac;
-                    margin-top: 4px;
-                }
-
-                .finance-panel {
-                    background: linear-gradient(180deg, #ffffff, #f8fbff);
-                    padding: 24px;
-                }
-
-                .finance-top {
-                    display: flex;
-                    justify-content: space-between;
-                    align-items: center;
-                    gap: 16px;
-                    margin-bottom: 18px;
-                    flex-wrap: wrap;
-                }
-
-                .finance-title {
-                    font-size: 14px;
-                    color: #5e7388;
+                    font-size: 13px;
                     font-weight: 600;
-                    margin-bottom: 6px;
                 }
 
-                .finance-amount {
-                    font-size: 34px;
-                    font-weight: 800;
-                    color: #0f2740;
+                .solar-metric-value {
+                    margin-top: 8px;
+                    color: #152536;
+                    font-size: 28px;
                     line-height: 1.2;
+                    font-weight: 800;
                 }
 
-                .payback-box {
-                    min-width: 220px;
-                    background: linear-gradient(135deg, #0d6efd, #20c997);
-                    color: white;
-                    border-radius: 20px;
-                    padding: 16px 18px;
-                    box-shadow: 0 12px 28px rgba(13, 110, 253, 0.22);
-                }
-
-                .payback-label {
+                .solar-metric-unit {
+                    margin-top: 4px;
+                    color: #8a9aac;
                     font-size: 12px;
-                    opacity: 0.9;
-                    margin-bottom: 6px;
                 }
 
-                .payback-value {
+                .solar-finance-panel {
+                    padding: 24px;
+                    background: linear-gradient(180deg, #ffffff, #f8fbff);
+                }
+
+                .solar-finance-top {
+                    display: flex;
+                    align-items: center;
+                    justify-content: space-between;
+                    gap: 16px;
+                    flex-wrap: wrap;
+                    margin-bottom: 20px;
+                }
+
+                .solar-finance-title {
+                    margin-bottom: 6px;
+                    color: #5e7388;
+                    font-size: 14px;
+                    font-weight: 600;
+                }
+
+                .solar-finance-amount {
+                    color: #0f2740;
+                    font-size: 34px;
+                    line-height: 1.2;
+                    font-weight: 800;
+                }
+
+                .solar-payback {
+                    min-width: 220px;
+                    padding: 16px 18px;
+                    border-radius: 20px;
+                    color: #fff;
+                    background: linear-gradient(135deg, #0d6efd, #20c997);
+                }
+
+                .solar-payback-label {
+                    margin-bottom: 6px;
+                    opacity: 0.9;
+                    font-size: 12px;
+                }
+
+                .solar-payback-value {
                     font-size: 28px;
                     font-weight: 800;
                 }
 
-                .income-grid {
+                .solar-income-grid {
                     display: grid;
                     grid-template-columns: repeat(4, minmax(0, 1fr));
                     gap: 14px;
-                    margin-top: 20px;
                 }
 
-                .income-item {
-                    background: #fff;
-                    border: 1px solid #e8eef5;
-                    border-radius: 18px;
-                    padding: 16px;
-                    transition: all 0.25s ease;
-                }
-
-                .income-item:hover {
-                    transform: translateY(-4px);
-                    box-shadow: 0 12px 24px rgba(15, 23, 42, 0.08);
-                }
-
-                .income-head {
+                .solar-income-head {
                     display: flex;
                     align-items: center;
                     gap: 8px;
                     margin-bottom: 10px;
-                    color: #4d657d;
-                    font-size: 13px;
-                    font-weight: 600;
                 }
 
-                .income-value {
-                    font-size: 20px;
-                    font-weight: 700;
+                .solar-income-value {
                     color: #13263a;
+                    font-size: 20px;
                     line-height: 1.35;
-                    word-break: break-word;
+                    font-weight: 700;
                 }
 
                 .solar-actions {
@@ -523,51 +431,26 @@ export default function SolarCalculator() {
                     margin-top: 22px;
                 }
 
-                .contact-sales-btn,
-                .modal-submit {
+                .solar-cta,
+                .solar-submit {
                     display: inline-flex;
                     align-items: center;
                     justify-content: center;
                     gap: 10px;
                     border: none;
                     border-radius: 14px;
-                    background: linear-gradient(135deg, #0f2740, #1c7ed6);
+                    padding: 13px 24px;
                     color: #fff;
-                    font-size: 15px;
+                    background: linear-gradient(135deg, #0f2740, #1c7ed6);
                     font-weight: 800;
-                    padding: 13px 18px;
                     cursor: pointer;
-                    box-shadow: 0 12px 28px rgba(15, 39, 64, 0.2);
                 }
 
-                .contact-sales-btn {
-                    min-width: 220px;
-                    padding-inline: 24px;
-                }
-
-                .modal-submit {
+                .solar-submit {
                     background: linear-gradient(135deg, #0d6efd, #20c997);
-                    box-shadow: 0 12px 28px rgba(13, 110, 253, 0.2);
                 }
 
-                .contact-sales-btn:disabled,
-                .modal-submit:disabled {
-                    cursor: not-allowed;
-                    opacity: 0.68;
-                }
-
-                .formula-note {
-                    margin-top: 18px;
-                    font-size: 12px;
-                    color: #7a8b9b;
-                    line-height: 1.8;
-                    background: #f8fafc;
-                    border: 1px dashed #d8e2eb;
-                    border-radius: 16px;
-                    padding: 14px 16px;
-                }
-
-                .lead-backdrop {
+                .solar-backdrop {
                     position: fixed;
                     inset: 0;
                     z-index: 1200;
@@ -579,144 +462,125 @@ export default function SolarCalculator() {
                     backdrop-filter: blur(8px);
                 }
 
-                .lead-modal {
+                .solar-modal {
                     width: min(920px, 100%);
-                    max-height: min(92vh, 880px);
+                    max-height: 92vh;
                     overflow: auto;
-                    background: #ffffff;
                     border: 1px solid #dbeafe;
                     border-radius: 24px;
+                    background: #fff;
                     box-shadow: 0 28px 80px rgba(15, 23, 42, 0.24);
                 }
 
-                .lead-modal-head {
-                    display: flex;
-                    align-items: flex-start;
-                    justify-content: space-between;
-                    gap: 16px;
-                    padding: 24px 24px 18px;
-                    border-bottom: 1px solid #e8eef5;
-                }
-
-                .lead-modal-title {
-                    margin: 0 0 6px;
-                    font-size: 24px;
-                    font-weight: 850;
-                    color: #0f2740;
-                }
-
-                .lead-modal-desc {
-                    margin: 0;
-                    color: #64748b;
-                    line-height: 1.7;
-                    font-size: 14px;
-                }
-
-                .modal-close {
-                    width: 38px;
-                    height: 38px;
-                    display: inline-flex;
-                    align-items: center;
-                    justify-content: center;
-                    border: 1px solid #d7e2ee;
-                    border-radius: 12px;
-                    background: #fff;
-                    color: #334155;
-                    cursor: pointer;
-                }
-
-                .lead-modal-body {
-                    display: grid;
-                    grid-template-columns: minmax(0, 1fr) 320px;
-                    gap: 22px;
+                .solar-modal-head,
+                .solar-modal-body {
                     padding: 24px;
                 }
 
-                .lead-form-grid {
+                .solar-modal-head {
+                    display: flex;
+                    justify-content: space-between;
+                    gap: 16px;
+                    border-bottom: 1px solid #e8eef5;
+                }
+
+                .solar-modal-title {
+                    margin: 0 0 6px;
+                    color: #0f2740;
+                    font-size: 24px;
+                    font-weight: 850;
+                }
+
+                .solar-modal-desc {
+                    margin: 0;
+                    color: #64748b;
+                    line-height: 1.7;
+                }
+
+                .solar-close {
+                    width: 38px;
+                    height: 38px;
+                    border: 1px solid #d7e2ee;
+                    border-radius: 12px;
+                    background: #fff;
+                    cursor: pointer;
+                }
+
+                .solar-modal-body {
+                    display: grid;
+                    grid-template-columns: minmax(0, 1fr) 320px;
+                    gap: 22px;
+                }
+
+                .solar-lead-grid {
                     display: grid;
                     grid-template-columns: repeat(2, minmax(0, 1fr));
                     gap: 16px;
                 }
 
-                .lead-form-grid .full {
+                .solar-lead-grid .full {
                     grid-column: 1 / -1;
                 }
 
-                .summary-card {
+                .solar-summary {
+                    align-self: start;
+                    padding: 18px;
                     border: 1px solid #e6eef8;
                     border-radius: 20px;
                     background: linear-gradient(180deg, #f8fbff, #eefaf4);
-                    padding: 18px;
-                    align-self: start;
                 }
 
-                .summary-title {
+                .solar-summary-title {
                     display: flex;
                     align-items: center;
                     gap: 8px;
                     margin: 0 0 14px;
+                    color: #0f2740;
                     font-size: 17px;
                     font-weight: 800;
-                    color: #0f2740;
                 }
 
-                .summary-list {
-                    display: grid;
-                    gap: 10px;
-                    margin: 0;
-                }
-
-                .summary-row {
+                .solar-summary-row {
                     display: flex;
                     justify-content: space-between;
                     gap: 14px;
-                    font-size: 13px;
+                    margin-bottom: 10px;
                     color: #64748b;
+                    font-size: 13px;
                 }
 
-                .summary-row strong {
+                .solar-summary-row strong {
                     color: #0f172a;
                     text-align: right;
-                    font-weight: 800;
                 }
 
-                .lead-status {
+                .solar-status {
                     margin: 16px 0 0;
                     padding: 11px 13px;
                     border-radius: 12px;
                     font-size: 14px;
-                    line-height: 1.6;
                 }
 
-                .lead-status.success {
-                    background: #ecfdf5;
-                    color: #047857;
-                }
-
-                .lead-status.error {
+                .solar-status.error {
                     background: #fef2f2;
                     color: #b91c1c;
                 }
 
-                .modal-submit-row {
+                .solar-submit-row {
                     display: flex;
                     justify-content: flex-end;
                     margin-top: 18px;
                 }
 
                 @media (max-width: 900px) {
-                    .main-grid,
-                    .lead-modal-body {
+                    .solar-main-grid,
+                    .solar-modal-body {
                         grid-template-columns: 1fr;
                     }
 
-                    .metrics-grid,
-                    .income-grid {
-                        grid-template-columns: 1fr 1fr;
-                    }
-
-                    .hero-title {
-                        font-size: 28px;
+                    .solar-metrics-grid,
+                    .solar-income-grid {
+                        grid-template-columns: repeat(2, minmax(0, 1fr));
                     }
                 }
 
@@ -725,142 +589,115 @@ export default function SolarCalculator() {
                         padding: 20px 14px 40px;
                     }
 
-                    .hero-card,
-                    .lead-modal-head,
-                    .lead-modal-body {
-                        padding: 22px;
+                    .solar-title {
+                        font-size: 26px;
                     }
 
-                    .hero-title {
-                        font-size: 24px;
-                    }
-
-                    .metrics-grid,
-                    .income-grid,
-                    .lead-form-grid {
+                    .solar-metrics-grid,
+                    .solar-income-grid,
+                    .solar-lead-grid {
                         grid-template-columns: 1fr;
                     }
 
-                    .finance-amount {
-                        font-size: 28px;
-                    }
-
-                    .payback-value {
-                        font-size: 24px;
-                    }
-
-                    .solar-actions,
-                    .modal-submit-row {
-                        justify-content: stretch;
-                    }
-
-                    .contact-sales-btn,
-                    .modal-submit {
+                    .solar-cta,
+                    .solar-submit {
                         width: 100%;
                     }
                 }
             `}</style>
 
             <div className="solar-wrap">
-                <section className="hero-card fade-up">
-                    <div className="hero-badge">
+                <section className="solar-hero">
+                    <div className="solar-badge">
                         <Sun size={16} />
-                        太陽能屋頂型投資試算
+                        {t("solar.heroBadge")}
                     </div>
-
-                    <h1 className="hero-title">快速估算屋頂太陽能投資效益</h1>
-
-                    <p className="hero-desc">
-                        輸入所在地區與可用屋頂坪數，即可估算設置容量、發電量、
-                        建置費用、收益與回收年限。試算結果可直接送給客服與業務人員協助評估。
-                    </p>
+                    <h1 className="solar-title">{t("solar.heroTitle")}</h1>
+                    <p className="solar-desc">{t("solar.heroDesc")}</p>
                 </section>
 
-                <section className="main-grid">
-                    <div className="panel fade-up delay-1">
-                        <h2 className="panel-title">
+                <section className="solar-main-grid">
+                    <div className="solar-panel">
+                        <h2 className="solar-panel-title">
                             <MapPin size={20} />
-                            試算條件
+                            {t("solar.conditionTitle")}
                         </h2>
 
-                        <div className="field-group">
-                            <label className="field-label">縣市地區</label>
+                        <div className="solar-field">
+                            <label className="solar-label">{t("solar.county")}</label>
                             <select
-                                className="field-control"
+                                className="solar-control"
                                 value={county}
-                                onChange={(e) => setCounty(e.target.value)}
+                                onChange={(event) => setCounty(event.target.value)}
                             >
-                                {COUNTIES.map((c) => (
-                                    <option key={c.name} value={c.name}>
-                                        {c.name}
+                                {COUNTIES.map((item) => (
+                                    <option key={item.name} value={item.name}>
+                                        {item.name}
                                     </option>
                                 ))}
                             </select>
                         </div>
 
-                        <div className="field-group">
-                            <label className="field-label">屋頂可用坪數</label>
+                        <div className="solar-field">
+                            <label className="solar-label">{t("solar.ping")}</label>
                             <input
-                                className="field-control"
+                                className="solar-control"
                                 type="number"
                                 value={ping}
                                 min={1}
                                 max={99999}
                                 step={1}
-                                onChange={(e) =>
-                                    setPing(Math.max(1, Number(e.target.value) || 1))
+                                onChange={(event) =>
+                                    setPing(Math.max(1, Number(event.target.value) || 1))
                                 }
                             />
                         </div>
 
-                        <div className="sub-note">
-                            試算結果為初步估算，實際收益會因屋頂方向、遮蔽、設備規格、
-                            施工條件與法規而不同，仍需由專人現場評估。
-                        </div>
+                        <div className="solar-note">{t("solar.note")}</div>
                     </div>
 
-                    <div className="metrics-grid fade-up delay-2">
-                        {metrics.map(({ label, value, unit, icon }) => (
-                            <div key={label} className="metric-card">
-                                <div className="metric-icon">{icon}</div>
-                                <div className="metric-label">{label}</div>
-                                <div className="metric-value">{value}</div>
-                                <div className="metric-unit">{unit}</div>
+                    <div className="solar-metrics-grid">
+                        {metrics.map((item) => (
+                            <div className="solar-metric-card" key={item.label}>
+                                <div className="solar-metric-icon">{item.icon}</div>
+                                <div className="solar-metric-label">{item.label}</div>
+                                <div className="solar-metric-value">{item.value}</div>
+                                <div className="solar-metric-unit">{item.unit}</div>
                             </div>
                         ))}
                     </div>
                 </section>
 
-                <section className="finance-panel fade-up delay-3">
-                    <div className="finance-top">
+                <section className="solar-finance-panel">
+                    <div className="solar-finance-top">
                         <div>
-                            <div className="finance-title">預估系統建置費用</div>
-                            <div className="finance-amount">
-                                NT$ {fmtInt(r.systemCost)}
-                            </div>
+                            <div className="solar-finance-title">{t("solar.financeTitle")}</div>
+                            <div className="solar-finance-amount">NT$ {fmtInt(result.systemCost)}</div>
                         </div>
 
-                        <div className="payback-box">
-                            <div className="payback-label">預估回收年限</div>
-                            <div className="payback-value">{fmt(r.payback)} 年</div>
+                        <div className="solar-payback">
+                            <div className="solar-payback-label">{t("solar.payback")}</div>
+                            <div className="solar-payback-value">
+                                {fmt(result.payback)} {t("solar.units.year")}
+                            </div>
                         </div>
                     </div>
 
-                    <div className="income-grid">
-                        {incomeRows.map(({ label, value, icon }) => (
-                            <div key={label} className="income-item">
-                                <div className="income-head">
-                                    {icon}
-                                    <span>{label}</span>
+                    <div className="solar-income-grid">
+                        {incomeRows.map((item) => (
+                            <div className="solar-income-card" key={item.label}>
+                                <div className="solar-income-head">
+                                    {item.icon}
+                                    <span>{item.label}</span>
                                 </div>
-                                <div className="income-value">{value}</div>
+                                <div className="solar-income-value">{item.value}</div>
                             </div>
                         ))}
                     </div>
 
                     <div className="solar-actions">
                         <button
-                            className="contact-sales-btn"
+                            className="solar-cta"
                             type="button"
                             onClick={() => {
                                 setLeadStatus({ type: "", message: "" });
@@ -868,153 +705,113 @@ export default function SolarCalculator() {
                             }}
                         >
                             <Phone size={18} />
-                            聯絡業務人員
+                            {t("solar.contactSales")}
                         </button>
                     </div>
 
-                    <div className="formula-note">
-                        公式：設置容量 = 坪數 x 0.4 KW；年發電量 = 容量 x 日照時數 x 365；
-                        建置費用 = 容量 x NT$60,000 / KW；租金估算 = 售電收入 x 6%。
-                    </div>
+                    <div className="solar-formula">{t("solar.formula")}</div>
                 </section>
             </div>
 
             {isLeadOpen && (
-                <div className="lead-backdrop" role="presentation">
-                    <form className="lead-modal" onSubmit={handleLeadSubmit}>
-                        <div className="lead-modal-head">
+                <div className="solar-backdrop">
+                    <form className="solar-modal" onSubmit={handleLeadSubmit}>
+                        <div className="solar-modal-head">
                             <div>
-                                <h2 className="lead-modal-title">聯絡業務人員</h2>
-                                <p className="lead-modal-desc">
-                                    請留下基本資料，我們會將您的試算內容一併寄給客服與業務人員。
-                                </p>
+                                <h2 className="solar-modal-title">{t("solar.modalTitle")}</h2>
+                                <p className="solar-modal-desc">{t("solar.modalDesc")}</p>
                             </div>
-
                             <button
-                                className="modal-close"
+                                className="solar-close"
                                 type="button"
-                                aria-label="關閉"
+                                aria-label="Close"
                                 onClick={() => setIsLeadOpen(false)}
                             >
                                 <X size={18} />
                             </button>
                         </div>
 
-                        <div className="lead-modal-body">
+                        <div className="solar-modal-body">
                             <div>
-                                <div className="lead-form-grid">
-                                    <div className="field-group">
-                                        <label className="field-label" htmlFor="lead-name">
-                                            姓名
-                                        </label>
+                                <div className="solar-lead-grid">
+                                    <div className="solar-field">
+                                        <label className="solar-label">{t("solar.name")}</label>
                                         <input
-                                            id="lead-name"
-                                            className="field-control"
+                                            className="solar-control"
                                             name="name"
                                             value={leadForm.name}
                                             onChange={updateLeadField}
-                                            placeholder="請輸入姓名"
                                             required
                                         />
                                     </div>
-
-                                    <div className="field-group">
-                                        <label className="field-label" htmlFor="lead-phone">
-                                            電話
-                                        </label>
+                                    <div className="solar-field">
+                                        <label className="solar-label">{t("solar.phone")}</label>
                                         <input
-                                            id="lead-phone"
-                                            className="field-control"
+                                            className="solar-control"
                                             name="phone"
                                             value={leadForm.phone}
                                             onChange={updateLeadField}
-                                            placeholder="請輸入聯絡電話"
                                             required
                                         />
                                     </div>
-
-                                    <div className="field-group full">
-                                        <label className="field-label" htmlFor="lead-email">
-                                            Email
-                                        </label>
+                                    <div className="solar-field full">
+                                        <label className="solar-label">{t("solar.email")}</label>
                                         <input
-                                            id="lead-email"
-                                            className="field-control"
+                                            className="solar-control"
                                             type="email"
                                             name="email"
                                             value={leadForm.email}
                                             onChange={updateLeadField}
-                                            placeholder="your@email.com"
                                             required
                                         />
                                     </div>
-
-                                    <div className="field-group full">
-                                        <label className="field-label" htmlFor="lead-note">
-                                            備註
-                                        </label>
+                                    <div className="solar-field full">
+                                        <label className="solar-label">{t("solar.remark")}</label>
                                         <textarea
-                                            id="lead-note"
-                                            className="field-control"
+                                            className="solar-control"
                                             name="note"
                                             value={leadForm.note}
                                             onChange={updateLeadField}
-                                            placeholder="可填寫屋頂位置、可聯絡時間或其他需求"
                                         />
                                     </div>
                                 </div>
 
                                 {leadStatus.message && (
-                                    <div className={`lead-status ${leadStatus.type}`}>
-                                        {leadStatus.type === "success" && <CheckCircle2 size={16} />}
+                                    <div className={`solar-status ${leadStatus.type}`}>
                                         {leadStatus.message}
                                     </div>
                                 )}
 
-                                <div className="modal-submit-row">
+                                <div className="solar-submit-row">
                                     <button
-                                        className="modal-submit"
+                                        className="solar-submit"
                                         type="submit"
                                         disabled={isSubmitting}
                                     >
                                         <Send size={17} />
-                                        {isSubmitting ? "送出中..." : "送出給客服"}
+                                        {isSubmitting ? t("solar.submitting") : t("solar.submit")}
                                     </button>
                                 </div>
                             </div>
 
-                            <aside className="summary-card">
-                                <h3 className="summary-title">
+                            <aside className="solar-summary">
+                                <h3 className="solar-summary-title">
                                     <CalendarClock size={18} />
-                                    試算摘要
+                                    {t("solar.summary")}
                                 </h3>
-
-                                <div className="summary-list">
-                                    <div className="summary-row">
-                                        <span>縣市</span>
-                                        <strong>{county}</strong>
+                                {[
+                                    [t("solar.county"), county],
+                                    [t("solar.ping"), `${fmt(Number(ping), 0)} ${t("solar.units.ping")}`],
+                                    [t("solar.metrics.kw"), `${fmt(result.kw)} ${t("solar.units.kw")}`],
+                                    [t("solar.financeTitle"), `NT$ ${fmtInt(result.systemCost)}`],
+                                    [t("solar.income.year"), `NT$ ${fmt(result.annualIncome)}`],
+                                    [t("solar.payback"), `${fmt(result.payback)} ${t("solar.units.year")}`],
+                                ].map(([label, value]) => (
+                                    <div className="solar-summary-row" key={label}>
+                                        <span>{label}</span>
+                                        <strong>{value}</strong>
                                     </div>
-                                    <div className="summary-row">
-                                        <span>可用坪數</span>
-                                        <strong>{fmt(Number(ping), 0)} 坪</strong>
-                                    </div>
-                                    <div className="summary-row">
-                                        <span>設置容量</span>
-                                        <strong>{fmt(r.kw)} KW</strong>
-                                    </div>
-                                    <div className="summary-row">
-                                        <span>建置費用</span>
-                                        <strong>NT$ {fmtInt(r.systemCost)}</strong>
-                                    </div>
-                                    <div className="summary-row">
-                                        <span>年收益</span>
-                                        <strong>NT$ {fmt(r.annualIncome)}</strong>
-                                    </div>
-                                    <div className="summary-row">
-                                        <span>回收年限</span>
-                                        <strong>{fmt(r.payback)} 年</strong>
-                                    </div>
-                                </div>
+                                ))}
                             </aside>
                         </div>
                     </form>
