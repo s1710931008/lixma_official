@@ -6,7 +6,6 @@
   "scripts": {
     "dev": "vite",
     "api": "node src/api/newserver.js",
-    "db": "node src/api/newserver.js",
     "seed:news": "node src/api/seedNewsData.js",
     "build": "vite build",
     "lint": "eslint .",
