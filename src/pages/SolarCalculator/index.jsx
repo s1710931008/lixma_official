@@ -211,7 +211,7 @@ export default function SolarCalculator() {
                     padding: 32px;
                     margin-bottom: 24px;
                     color: #fff;
-                    background: linear-gradient(135deg, rgba(10, 92, 168, 0.96), rgba(27, 160, 127, 0.88));
+                    background: linear-gradient(135deg, rgba(10, 92, 168, 0.96), rgba(10, 92, 168, 0.96));
                     box-shadow: 0 24px 60px rgba(15, 52, 96, 0.18);
                 }
 
@@ -391,7 +391,7 @@ export default function SolarCalculator() {
                     padding: 16px 18px;
                     border-radius: 20px;
                     color: #fff;
-                    background: linear-gradient(135deg, #0d6efd, #20c997);
+                    background: linear-gradient(135deg, #0d6efd, #1e4888ff);
                 }
 
                 .solar-payback-label {
