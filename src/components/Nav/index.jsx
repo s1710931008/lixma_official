@@ -53,10 +53,27 @@ export default function Nav() {
 
     return (
         <>
-            {/* 導覽列使用 sticky 固定在上方，滾動時比 fixed 更穩定。 */}
-            <AppBar position="sticky" sx={{ top: 0, zIndex: (theme) => theme.zIndex.drawer + 1 }}>
-                <Toolbar>
-                    <Typography variant="h6" sx={{ flexGrow: 1 }}>
+            <AppBar
+                position="sticky"
+                elevation={0}
+                sx={{
+                    top: 0,
+                    zIndex: (theme) => theme.zIndex.drawer + 1,
+                    backgroundColor: "#4d4f4d",
+                    borderBottom: "1px solid rgba(255, 255, 255, 0.18)",
+                    color: "#ffffff",
+                }}
+            >
+                <Toolbar sx={{ minHeight: { xs: 52, sm: 56 } }}>
+                    <Typography
+                        variant="h6"
+                        sx={{
+                            flexGrow: 1,
+                            fontFamily: "Georgia, serif",
+                            fontWeight: 800,
+                            letterSpacing: 2,
+                        }}
+                    >
                         LIXMA
                     </Typography>
 
@@ -76,6 +93,15 @@ export default function Nav() {
                                 variant={
                                     location.pathname === item.path ? "outlined" : "text"
                                 }
+                                sx={{
+                                    borderColor: "rgba(255, 255, 255, 0.68)",
+                                    color: "#ffffff",
+                                    fontWeight: 700,
+                                    "&:hover": {
+                                        borderColor: "#ffffff",
+                                        backgroundColor: "rgba(255, 255, 255, 0.1)",
+                                    },
+                                }}
                             >
                                 {item.name}
                             </Button>
@@ -92,10 +118,10 @@ export default function Nav() {
                                         color: "inherit",
                                         height: 36,
                                         ".MuiOutlinedInput-notchedOutline": {
-                                            borderColor: "rgba(255, 255, 255, 0.45)",
+                                            borderColor: "rgba(255, 255, 255, 0.5)",
                                         },
                                         "&:hover .MuiOutlinedInput-notchedOutline": {
-                                            borderColor: "rgba(255, 255, 255, 0.75)",
+                                            borderColor: "rgba(255, 255, 255, 0.82)",
                                         },
                                         "&.Mui-focused .MuiOutlinedInput-notchedOutline": {
                                             borderColor: "#ffffff",

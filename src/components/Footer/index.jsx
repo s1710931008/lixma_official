@@ -32,8 +32,8 @@ export default function Footer() {
         <Box
             component="footer"
             sx={{
-                background: "linear-gradient(135deg, #0f2740, #0d3b66)",
-                borderTop: "1px solid #cfe1f6",
+                backgroundColor: "#4d4f4d",
+                borderTop: "1px solid rgba(255, 255, 255, 0.16)",
                 py: { xs: 5.5, md: 2 },
                 px: 2,
             }}
@@ -46,6 +46,7 @@ export default function Footer() {
                         mb: { xs: 3, md: 4 },
                         letterSpacing: 2,
                         color: "#ffffff",
+                        fontFamily: "Georgia, serif",
                     }}
                 >
                     LIXMA
@@ -70,7 +71,7 @@ export default function Footer() {
                             width: "fit-content",
                             maxWidth: "100%",
                             mx: "auto",
-                            color: "#fff",
+                            color: "rgba(255, 255, 255, 0.92)",
                         }}
                     >
                         {footerItems.map((item) => {
@@ -94,7 +95,7 @@ export default function Footer() {
                                             fontSize: { xs: "0.92rem", md: "0.96rem" },
                                             lineHeight: 1.6,
                                             fontWeight: 500,
-                                            color: "rgba(255, 255, 255, 0.94)",
+                                            color: "rgba(255, 255, 255, 0.9)",
                                             whiteSpace: { xs: "normal", md: "nowrap" },
                                         }}
                                     >
@@ -108,7 +109,7 @@ export default function Footer() {
 
                 <Typography
                     sx={{
-                        color: "rgba(255, 255, 255, 0.82)",
+                        color: "rgba(255, 255, 255, 0.86)",
                         fontSize: { xs: "0.84rem", md: "0.9rem" },
                     }}
                 >
