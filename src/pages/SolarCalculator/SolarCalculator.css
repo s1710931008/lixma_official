@@ -1,0 +1,411 @@
+/* SolarCalculator.css */
+
+.solar-wrap {
+    max-width: 1100px;
+    margin: 0 auto;
+    padding: 32px 20px 60px;
+    color: #0f172a;
+}
+
+.solar-hero {
+    border-radius: 28px;
+    padding: 32px;
+    margin-bottom: 24px;
+    color: #fff;
+    background: linear-gradient(135deg,
+            rgba(10, 92, 168, 0.96),
+            rgba(10, 92, 168, 0.96));
+    box-shadow: 0 24px 60px rgba(15, 52, 96, 0.18);
+}
+
+.solar-badge {
+    display: inline-flex;
+    align-items: center;
+    gap: 8px;
+    padding: 8px 14px;
+    border-radius: 999px;
+    background: rgba(255, 255, 255, 0.14);
+    border: 1px solid rgba(255, 255, 255, 0.18);
+    font-size: 13px;
+    margin-bottom: 18px;
+}
+
+.solar-title {
+    margin: 0 0 12px;
+    font-size: 34px;
+    line-height: 1.25;
+    font-weight: 800;
+}
+
+.solar-desc {
+    max-width: 760px;
+    margin: 0;
+    color: rgba(255, 255, 255, 0.92);
+    line-height: 1.8;
+}
+
+.solar-main-grid {
+    display: grid;
+    grid-template-columns: 320px 1fr;
+    gap: 22px;
+    margin-bottom: 22px;
+}
+
+.solar-panel,
+.solar-finance-panel {
+    background: #fff;
+    border: 1px solid #e8eef5;
+    border-radius: 24px;
+    box-shadow: 0 14px 34px rgba(16, 24, 40, 0.06);
+}
+
+.solar-panel {
+    padding: 22px;
+}
+
+.solar-panel-title {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    margin: 0 0 18px;
+    color: #17324d;
+    font-size: 18px;
+    font-weight: 700;
+}
+
+.solar-field {
+    margin-bottom: 16px;
+}
+
+.solar-label {
+    display: block;
+    margin-bottom: 8px;
+    color: #4e647a;
+    font-size: 13px;
+    font-weight: 600;
+}
+
+.solar-control {
+    width: 100%;
+    height: 48px;
+    border: 1px solid #d7e2ee;
+    border-radius: 14px;
+    padding: 0 14px;
+    background: #f9fbfd;
+    font-size: 15px;
+    outline: none;
+    box-sizing: border-box;
+}
+
+textarea.solar-control {
+    height: auto;
+    min-height: 96px;
+    padding-top: 12px;
+    resize: vertical;
+}
+
+.solar-note,
+.solar-formula {
+    margin-top: 14px;
+    padding: 12px 14px;
+    border-radius: 14px;
+    background: #f7fafc;
+    color: #73879b;
+    font-size: 12px;
+    line-height: 1.7;
+}
+
+.solar-metrics-grid {
+    display: grid;
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+    gap: 16px;
+}
+
+.solar-metric-card,
+.solar-income-card {
+    background: linear-gradient(180deg, #ffffff, #f7fbff);
+    border: 1px solid #e6eef8;
+    border-radius: 22px;
+    padding: 18px;
+}
+
+.solar-metric-icon {
+    width: 42px;
+    height: 42px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    margin-bottom: 14px;
+    border-radius: 14px;
+    color: #1565c0;
+    background: linear-gradient(135deg, #e6f4ff, #dff8ef);
+}
+
+.solar-metric-label,
+.solar-income-head {
+    color: #66788a;
+    font-size: 13px;
+    font-weight: 600;
+}
+
+.solar-metric-value {
+    margin-top: 8px;
+    color: #152536;
+    font-size: 28px;
+    line-height: 1.2;
+    font-weight: 800;
+}
+
+.solar-metric-unit {
+    margin-top: 4px;
+    color: #8a9aac;
+    font-size: 12px;
+}
+
+.solar-finance-panel {
+    padding: 24px;
+    background: linear-gradient(180deg, #ffffff, #f8fbff);
+}
+
+.solar-finance-top {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: 16px;
+    flex-wrap: wrap;
+    margin-bottom: 20px;
+}
+
+.solar-finance-title {
+    margin-bottom: 6px;
+    color: #5e7388;
+    font-size: 14px;
+    font-weight: 600;
+}
+
+.solar-finance-amount {
+    color: #0f2740;
+    font-size: 34px;
+    line-height: 1.2;
+    font-weight: 800;
+}
+
+.solar-payback {
+    min-width: 220px;
+    padding: 16px 18px;
+    border-radius: 20px;
+    color: #fff;
+    background: linear-gradient(135deg, #0d6efd, #1e4888ff);
+}
+
+.solar-payback-label {
+    margin-bottom: 6px;
+    opacity: 0.9;
+    font-size: 12px;
+}
+
+.solar-payback-value {
+    font-size: 28px;
+    font-weight: 800;
+}
+
+.solar-income-grid {
+    display: grid;
+    grid-template-columns: repeat(4, minmax(0, 1fr));
+    gap: 14px;
+}
+
+.solar-income-head {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    margin-bottom: 10px;
+}
+
+.solar-income-value {
+    color: #13263a;
+    font-size: 20px;
+    line-height: 1.35;
+    font-weight: 700;
+}
+
+.solar-actions {
+    display: flex;
+    justify-content: center;
+    margin-top: 22px;
+}
+
+.solar-cta,
+.solar-submit {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    gap: 10px;
+    border: none;
+    border-radius: 14px;
+    padding: 13px 24px;
+    color: #fff;
+    background: linear-gradient(135deg, #0f2740, #1c7ed6);
+    font-weight: 800;
+    cursor: pointer;
+}
+
+.solar-submit {
+    background: linear-gradient(135deg, #0d6efd, #20c997);
+}
+
+.solar-backdrop {
+    position: fixed;
+    inset: 0;
+    z-index: 1200;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    padding: 24px;
+    background: rgba(15, 23, 42, 0.48);
+    backdrop-filter: blur(8px);
+}
+
+.solar-modal {
+    width: min(920px, 100%);
+    max-height: 92vh;
+    overflow: auto;
+    border: 1px solid #dbeafe;
+    border-radius: 24px;
+    background: #fff;
+    box-shadow: 0 28px 80px rgba(15, 23, 42, 0.24);
+}
+
+.solar-modal-head,
+.solar-modal-body {
+    padding: 24px;
+}
+
+.solar-modal-head {
+    display: flex;
+    justify-content: space-between;
+    gap: 16px;
+    border-bottom: 1px solid #e8eef5;
+}
+
+.solar-modal-title {
+    margin: 0 0 6px;
+    color: #0f2740;
+    font-size: 24px;
+    font-weight: 850;
+}
+
+.solar-modal-desc {
+    margin: 0;
+    color: #64748b;
+    line-height: 1.7;
+}
+
+.solar-close {
+    width: 38px;
+    height: 38px;
+    border: 1px solid #d7e2ee;
+    border-radius: 12px;
+    background: #fff;
+    cursor: pointer;
+}
+
+.solar-modal-body {
+    display: grid;
+    grid-template-columns: minmax(0, 1fr) 320px;
+    gap: 22px;
+}
+
+.solar-lead-grid {
+    display: grid;
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+    gap: 16px;
+}
+
+.solar-lead-grid .full {
+    grid-column: 1 / -1;
+}
+
+.solar-summary {
+    align-self: start;
+    padding: 18px;
+    border: 1px solid #e6eef8;
+    border-radius: 20px;
+    background: linear-gradient(180deg, #f8fbff, #eefaf4);
+}
+
+.solar-summary-title {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    margin: 0 0 14px;
+    color: #0f2740;
+    font-size: 17px;
+    font-weight: 800;
+}
+
+.solar-summary-row {
+    display: flex;
+    justify-content: space-between;
+    gap: 14px;
+    margin-bottom: 10px;
+    color: #64748b;
+    font-size: 13px;
+}
+
+.solar-summary-row strong {
+    color: #0f172a;
+    text-align: right;
+}
+
+.solar-status {
+    margin: 16px 0 0;
+    padding: 11px 13px;
+    border-radius: 12px;
+    font-size: 14px;
+}
+
+.solar-status.error {
+    background: #fef2f2;
+    color: #b91c1c;
+}
+
+.solar-submit-row {
+    display: flex;
+    justify-content: flex-end;
+    margin-top: 18px;
+}
+
+@media (max-width: 900px) {
+
+    .solar-main-grid,
+    .solar-modal-body {
+        grid-template-columns: 1fr;
+    }
+
+    .solar-metrics-grid,
+    .solar-income-grid {
+        grid-template-columns: repeat(2, minmax(0, 1fr));
+    }
+}
+
+@media (max-width: 640px) {
+    .solar-wrap {
+        padding: 20px 14px 40px;
+    }
+
+    .solar-title {
+        font-size: 26px;
+    }
+
+    .solar-metrics-grid,
+    .solar-income-grid,
+    .solar-lead-grid {
+        grid-template-columns: 1fr;
+    }
+
+    .solar-cta,
+    .solar-submit {
+        width: 100%;
+    }
+}

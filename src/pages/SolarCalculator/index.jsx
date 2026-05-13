@@ -1,5 +1,9 @@
+// SolarCalculator.jsx
+
 import { useMemo, useState } from "react";
 import { useTranslation } from "react-i18next";
+import "./SolarCalculator.css";
+
 import {
     Banknote,
     CalendarClock,
@@ -65,23 +69,46 @@ function fmtInt(n) {
 
 export default function SolarCalculator() {
     const { t } = useTranslation();
+
     const [county, setCounty] = useState("台中市");
     const [ping, setPing] = useState(50);
     const [isLeadOpen, setIsLeadOpen] = useState(false);
+
     const [leadForm, setLeadForm] = useState(emptyLeadForm);
-    const [leadStatus, setLeadStatus] = useState({ type: "", message: "" });
+
+    const [leadStatus, setLeadStatus] = useState({
+        type: "",
+        message: "",
+    });
+
     const [isSubmitting, setIsSubmitting] = useState(false);
 
     const result = useMemo(() => {
-        const selectedCounty = COUNTIES.find((item) => item.name === county) || COUNTIES[9];
+        const selectedCounty =
+            COUNTIES.find((item) => item.name === county) || COUNTIES[9];
+
         const kw = ping * KW_PER_PING;
-        const annualKwh = kw * selectedCounty.sun * 365;
-        const systemCost = kw * PRICE_PER_KW;
-        const annualIncome = annualKwh * SELL_PRICE;
-        const monthlyIncome = annualIncome / 12;
-        const payback = systemCost / annualIncome;
-        const rentMonth = monthlyIncome * RENT_RATIO;
-        const rentYear = annualIncome * RENT_RATIO;
+
+        const annualKwh =
+            kw * selectedCounty.sun * 365;
+
+        const systemCost =
+            kw * PRICE_PER_KW;
+
+        const annualIncome =
+            annualKwh * SELL_PRICE;
+
+        const monthlyIncome =
+            annualIncome / 12;
+
+        const payback =
+            systemCost / annualIncome;
+
+        const rentMonth =
+            monthlyIncome * RENT_RATIO;
+
+        const rentYear =
+            annualIncome * RENT_RATIO;
 
         return {
             kw,
@@ -124,15 +151,35 @@ export default function SolarCalculator() {
     ];
 
     const incomeRows = [
-        { label: t("solar.income.month"), value: `NT$ ${fmt(result.monthlyIncome)}`, icon: <Wallet size={18} /> },
-        { label: t("solar.income.year"), value: `NT$ ${fmt(result.annualIncome)}`, icon: <Banknote size={18} /> },
-        { label: t("solar.income.rentMonth"), value: `NT$ ${fmt(result.rentMonth)}`, icon: <Wallet size={18} /> },
-        { label: t("solar.income.rentYear"), value: `NT$ ${fmt(result.rentYear)}`, icon: <Banknote size={18} /> },
+        {
+            label: t("solar.income.month"),
+            value: `NT$ ${fmt(result.monthlyIncome)}`,
+            icon: <Wallet size={18} />,
+        },
+        {
+            label: t("solar.income.year"),
+            value: `NT$ ${fmt(result.annualIncome)}`,
+            icon: <Banknote size={18} />,
+        },
+        {
+            label: t("solar.income.rentMonth"),
+            value: `NT$ ${fmt(result.rentMonth)}`,
+            icon: <Wallet size={18} />,
+        },
+        {
+            label: t("solar.income.rentYear"),
+            value: `NT$ ${fmt(result.rentYear)}`,
+            icon: <Banknote size={18} />,
+        },
     ];
 
     const updateLeadField = (event) => {
         const { name, value } = event.target;
-        setLeadForm((current) => ({ ...current, [name]: value }));
+
+        setLeadForm((current) => ({
+            ...current,
+            [name]: value,
+        }));
     };
 
     const buildMailMessage = () =>
@@ -153,12 +200,18 @@ export default function SolarCalculator() {
             `${t("solar.income.rentYear")}: NT$ ${fmt(result.rentYear)}`,
             `${t("solar.payback")}: ${fmt(result.payback)} ${t("solar.units.year")}`,
             "",
-            `${t("solar.remark")}: ${leadForm.note.trim() || t("solar.noRemark")}`,
+            `${t("solar.remark")}: ${leadForm.note.trim() || t("solar.noRemark")
+            }`,
         ].join("\n");
 
     const handleLeadSubmit = async (event) => {
         event.preventDefault();
-        setLeadStatus({ type: "", message: "" });
+
+        setLeadStatus({
+            type: "",
+            message: "",
+        });
+
         setIsSubmitting(true);
 
         try {
@@ -180,16 +233,24 @@ export default function SolarCalculator() {
             const data = await res.json().catch(() => ({}));
 
             if (!res.ok || !data.success) {
-                throw new Error(data.message || t("solar.error"));
+                throw new Error(
+                    data.message || t("solar.error")
+                );
             }
 
             setLeadForm(emptyLeadForm);
-            setLeadStatus({ type: "success", message: t("solar.success") });
+
+            setLeadStatus({
+                type: "success",
+                message: t("solar.success"),
+            });
+
             setIsLeadOpen(false);
         } catch (error) {
             setLeadStatus({
                 type: "error",
-                message: error.message || t("solar.error"),
+                message:
+                    error.message || t("solar.error"),
             });
         } finally {
             setIsSubmitting(false);
@@ -198,422 +259,20 @@ export default function SolarCalculator() {
 
     return (
         <>
-            <style>{`
-                .solar-wrap {
-                    max-width: 1100px;
-                    margin: 0 auto;
-                    padding: 32px 20px 60px;
-                    color: #0f172a;
-                }
-
-                .solar-hero {
-                    border-radius: 28px;
-                    padding: 32px;
-                    margin-bottom: 24px;
-                    color: #fff;
-                    background: linear-gradient(135deg, rgba(10, 92, 168, 0.96), rgba(10, 92, 168, 0.96));
-                    box-shadow: 0 24px 60px rgba(15, 52, 96, 0.18);
-                }
-
-                .solar-badge {
-                    display: inline-flex;
-                    align-items: center;
-                    gap: 8px;
-                    padding: 8px 14px;
-                    border-radius: 999px;
-                    background: rgba(255,255,255,0.14);
-                    border: 1px solid rgba(255,255,255,0.18);
-                    font-size: 13px;
-                    margin-bottom: 18px;
-                }
-
-                .solar-title {
-                    margin: 0 0 12px;
-                    font-size: 34px;
-                    line-height: 1.25;
-                    font-weight: 800;
-                }
-
-                .solar-desc {
-                    max-width: 760px;
-                    margin: 0;
-                    color: rgba(255,255,255,0.92);
-                    line-height: 1.8;
-                }
-
-                .solar-main-grid {
-                    display: grid;
-                    grid-template-columns: 320px 1fr;
-                    gap: 22px;
-                    margin-bottom: 22px;
-                }
-
-                .solar-panel,
-                .solar-finance-panel {
-                    background: #fff;
-                    border: 1px solid #e8eef5;
-                    border-radius: 24px;
-                    box-shadow: 0 14px 34px rgba(16, 24, 40, 0.06);
-                }
-
-                .solar-panel {
-                    padding: 22px;
-                }
-
-                .solar-panel-title {
-                    display: flex;
-                    align-items: center;
-                    gap: 10px;
-                    margin: 0 0 18px;
-                    color: #17324d;
-                    font-size: 18px;
-                    font-weight: 700;
-                }
-
-                .solar-field {
-                    margin-bottom: 16px;
-                }
-
-                .solar-label {
-                    display: block;
-                    margin-bottom: 8px;
-                    color: #4e647a;
-                    font-size: 13px;
-                    font-weight: 600;
-                }
-
-                .solar-control {
-                    width: 100%;
-                    height: 48px;
-                    border: 1px solid #d7e2ee;
-                    border-radius: 14px;
-                    padding: 0 14px;
-                    background: #f9fbfd;
-                    font-size: 15px;
-                    outline: none;
-                }
-
-                textarea.solar-control {
-                    height: auto;
-                    min-height: 96px;
-                    padding-top: 12px;
-                    resize: vertical;
-                }
-
-                .solar-note,
-                .solar-formula {
-                    margin-top: 14px;
-                    padding: 12px 14px;
-                    border-radius: 14px;
-                    background: #f7fafc;
-                    color: #73879b;
-                    font-size: 12px;
-                    line-height: 1.7;
-                }
-
-                .solar-metrics-grid {
-                    display: grid;
-                    grid-template-columns: repeat(2, minmax(0, 1fr));
-                    gap: 16px;
-                }
-
-                .solar-metric-card,
-                .solar-income-card {
-                    background: linear-gradient(180deg, #ffffff, #f7fbff);
-                    border: 1px solid #e6eef8;
-                    border-radius: 22px;
-                    padding: 18px;
-                }
-
-                .solar-metric-icon {
-                    width: 42px;
-                    height: 42px;
-                    display: flex;
-                    align-items: center;
-                    justify-content: center;
-                    margin-bottom: 14px;
-                    border-radius: 14px;
-                    color: #1565c0;
-                    background: linear-gradient(135deg, #e6f4ff, #dff8ef);
-                }
-
-                .solar-metric-label,
-                .solar-income-head {
-                    color: #66788a;
-                    font-size: 13px;
-                    font-weight: 600;
-                }
-
-                .solar-metric-value {
-                    margin-top: 8px;
-                    color: #152536;
-                    font-size: 28px;
-                    line-height: 1.2;
-                    font-weight: 800;
-                }
-
-                .solar-metric-unit {
-                    margin-top: 4px;
-                    color: #8a9aac;
-                    font-size: 12px;
-                }
-
-                .solar-finance-panel {
-                    padding: 24px;
-                    background: linear-gradient(180deg, #ffffff, #f8fbff);
-                }
-
-                .solar-finance-top {
-                    display: flex;
-                    align-items: center;
-                    justify-content: space-between;
-                    gap: 16px;
-                    flex-wrap: wrap;
-                    margin-bottom: 20px;
-                }
-
-                .solar-finance-title {
-                    margin-bottom: 6px;
-                    color: #5e7388;
-                    font-size: 14px;
-                    font-weight: 600;
-                }
-
-                .solar-finance-amount {
-                    color: #0f2740;
-                    font-size: 34px;
-                    line-height: 1.2;
-                    font-weight: 800;
-                }
-
-                .solar-payback {
-                    min-width: 220px;
-                    padding: 16px 18px;
-                    border-radius: 20px;
-                    color: #fff;
-                    background: linear-gradient(135deg, #0d6efd, #1e4888ff);
-                }
-
-                .solar-payback-label {
-                    margin-bottom: 6px;
-                    opacity: 0.9;
-                    font-size: 12px;
-                }
-
-                .solar-payback-value {
-                    font-size: 28px;
-                    font-weight: 800;
-                }
-
-                .solar-income-grid {
-                    display: grid;
-                    grid-template-columns: repeat(4, minmax(0, 1fr));
-                    gap: 14px;
-                }
-
-                .solar-income-head {
-                    display: flex;
-                    align-items: center;
-                    gap: 8px;
-                    margin-bottom: 10px;
-                }
-
-                .solar-income-value {
-                    color: #13263a;
-                    font-size: 20px;
-                    line-height: 1.35;
-                    font-weight: 700;
-                }
-
-                .solar-actions {
-                    display: flex;
-                    justify-content: center;
-                    margin-top: 22px;
-                }
-
-                .solar-cta,
-                .solar-submit {
-                    display: inline-flex;
-                    align-items: center;
-                    justify-content: center;
-                    gap: 10px;
-                    border: none;
-                    border-radius: 14px;
-                    padding: 13px 24px;
-                    color: #fff;
-                    background: linear-gradient(135deg, #0f2740, #1c7ed6);
-                    font-weight: 800;
-                    cursor: pointer;
-                }
-
-                .solar-submit {
-                    background: linear-gradient(135deg, #0d6efd, #20c997);
-                }
-
-                .solar-backdrop {
-                    position: fixed;
-                    inset: 0;
-                    z-index: 1200;
-                    display: flex;
-                    align-items: center;
-                    justify-content: center;
-                    padding: 24px;
-                    background: rgba(15, 23, 42, 0.48);
-                    backdrop-filter: blur(8px);
-                }
-
-                .solar-modal {
-                    width: min(920px, 100%);
-                    max-height: 92vh;
-                    overflow: auto;
-                    border: 1px solid #dbeafe;
-                    border-radius: 24px;
-                    background: #fff;
-                    box-shadow: 0 28px 80px rgba(15, 23, 42, 0.24);
-                }
-
-                .solar-modal-head,
-                .solar-modal-body {
-                    padding: 24px;
-                }
-
-                .solar-modal-head {
-                    display: flex;
-                    justify-content: space-between;
-                    gap: 16px;
-                    border-bottom: 1px solid #e8eef5;
-                }
-
-                .solar-modal-title {
-                    margin: 0 0 6px;
-                    color: #0f2740;
-                    font-size: 24px;
-                    font-weight: 850;
-                }
-
-                .solar-modal-desc {
-                    margin: 0;
-                    color: #64748b;
-                    line-height: 1.7;
-                }
-
-                .solar-close {
-                    width: 38px;
-                    height: 38px;
-                    border: 1px solid #d7e2ee;
-                    border-radius: 12px;
-                    background: #fff;
-                    cursor: pointer;
-                }
-
-                .solar-modal-body {
-                    display: grid;
-                    grid-template-columns: minmax(0, 1fr) 320px;
-                    gap: 22px;
-                }
-
-                .solar-lead-grid {
-                    display: grid;
-                    grid-template-columns: repeat(2, minmax(0, 1fr));
-                    gap: 16px;
-                }
-
-                .solar-lead-grid .full {
-                    grid-column: 1 / -1;
-                }
-
-                .solar-summary {
-                    align-self: start;
-                    padding: 18px;
-                    border: 1px solid #e6eef8;
-                    border-radius: 20px;
-                    background: linear-gradient(180deg, #f8fbff, #eefaf4);
-                }
-
-                .solar-summary-title {
-                    display: flex;
-                    align-items: center;
-                    gap: 8px;
-                    margin: 0 0 14px;
-                    color: #0f2740;
-                    font-size: 17px;
-                    font-weight: 800;
-                }
-
-                .solar-summary-row {
-                    display: flex;
-                    justify-content: space-between;
-                    gap: 14px;
-                    margin-bottom: 10px;
-                    color: #64748b;
-                    font-size: 13px;
-                }
-
-                .solar-summary-row strong {
-                    color: #0f172a;
-                    text-align: right;
-                }
-
-                .solar-status {
-                    margin: 16px 0 0;
-                    padding: 11px 13px;
-                    border-radius: 12px;
-                    font-size: 14px;
-                }
-
-                .solar-status.error {
-                    background: #fef2f2;
-                    color: #b91c1c;
-                }
-
-                .solar-submit-row {
-                    display: flex;
-                    justify-content: flex-end;
-                    margin-top: 18px;
-                }
-
-                @media (max-width: 900px) {
-                    .solar-main-grid,
-                    .solar-modal-body {
-                        grid-template-columns: 1fr;
-                    }
-
-                    .solar-metrics-grid,
-                    .solar-income-grid {
-                        grid-template-columns: repeat(2, minmax(0, 1fr));
-                    }
-                }
-
-                @media (max-width: 640px) {
-                    .solar-wrap {
-                        padding: 20px 14px 40px;
-                    }
-
-                    .solar-title {
-                        font-size: 26px;
-                    }
-
-                    .solar-metrics-grid,
-                    .solar-income-grid,
-                    .solar-lead-grid {
-                        grid-template-columns: 1fr;
-                    }
-
-                    .solar-cta,
-                    .solar-submit {
-                        width: 100%;
-                    }
-                }
-            `}</style>
-
             <div className="solar-wrap">
                 <section className="solar-hero">
                     <div className="solar-badge">
                         <Sun size={16} />
                         {t("solar.heroBadge")}
                     </div>
-                    <h1 className="solar-title">{t("solar.heroTitle")}</h1>
-                    <p className="solar-desc">{t("solar.heroDesc")}</p>
+
+                    <h1 className="solar-title">
+                        {t("solar.heroTitle")}
+                    </h1>
+
+                    <p className="solar-desc">
+                        {t("solar.heroDesc")}
+                    </p>
                 </section>
 
                 <section className="solar-main-grid">
@@ -624,14 +283,22 @@ export default function SolarCalculator() {
                         </h2>
 
                         <div className="solar-field">
-                            <label className="solar-label">{t("solar.county")}</label>
+                            <label className="solar-label">
+                                {t("solar.county")}
+                            </label>
+
                             <select
                                 className="solar-control"
                                 value={county}
-                                onChange={(event) => setCounty(event.target.value)}
+                                onChange={(event) =>
+                                    setCounty(event.target.value)
+                                }
                             >
                                 {COUNTIES.map((item) => (
-                                    <option key={item.name} value={item.name}>
+                                    <option
+                                        key={item.name}
+                                        value={item.name}
+                                    >
                                         {item.name}
                                     </option>
                                 ))}
@@ -639,7 +306,10 @@ export default function SolarCalculator() {
                         </div>
 
                         <div className="solar-field">
-                            <label className="solar-label">{t("solar.ping")}</label>
+                            <label className="solar-label">
+                                {t("solar.ping")}
+                            </label>
+
                             <input
                                 className="solar-control"
                                 type="number"
@@ -648,21 +318,42 @@ export default function SolarCalculator() {
                                 max={99999}
                                 step={1}
                                 onChange={(event) =>
-                                    setPing(Math.max(1, Number(event.target.value) || 1))
+                                    setPing(
+                                        Math.max(
+                                            1,
+                                            Number(event.target.value) || 1
+                                        )
+                                    )
                                 }
                             />
                         </div>
 
-                        <div className="solar-note">{t("solar.note")}</div>
+                        <div className="solar-note">
+                            {t("solar.note")}
+                        </div>
                     </div>
 
                     <div className="solar-metrics-grid">
                         {metrics.map((item) => (
-                            <div className="solar-metric-card" key={item.label}>
-                                <div className="solar-metric-icon">{item.icon}</div>
-                                <div className="solar-metric-label">{item.label}</div>
-                                <div className="solar-metric-value">{item.value}</div>
-                                <div className="solar-metric-unit">{item.unit}</div>
+                            <div
+                                className="solar-metric-card"
+                                key={item.label}
+                            >
+                                <div className="solar-metric-icon">
+                                    {item.icon}
+                                </div>
+
+                                <div className="solar-metric-label">
+                                    {item.label}
+                                </div>
+
+                                <div className="solar-metric-value">
+                                    {item.value}
+                                </div>
+
+                                <div className="solar-metric-unit">
+                                    {item.unit}
+                                </div>
                             </div>
                         ))}
                     </div>
@@ -671,26 +362,41 @@ export default function SolarCalculator() {
                 <section className="solar-finance-panel">
                     <div className="solar-finance-top">
                         <div>
-                            <div className="solar-finance-title">{t("solar.financeTitle")}</div>
-                            <div className="solar-finance-amount">NT$ {fmtInt(result.systemCost)}</div>
+                            <div className="solar-finance-title">
+                                {t("solar.financeTitle")}
+                            </div>
+
+                            <div className="solar-finance-amount">
+                                NT$ {fmtInt(result.systemCost)}
+                            </div>
                         </div>
 
                         <div className="solar-payback">
-                            <div className="solar-payback-label">{t("solar.payback")}</div>
+                            <div className="solar-payback-label">
+                                {t("solar.payback")}
+                            </div>
+
                             <div className="solar-payback-value">
-                                {fmt(result.payback)} {t("solar.units.year")}
+                                {fmt(result.payback)}{" "}
+                                {t("solar.units.year")}
                             </div>
                         </div>
                     </div>
 
                     <div className="solar-income-grid">
                         {incomeRows.map((item) => (
-                            <div className="solar-income-card" key={item.label}>
+                            <div
+                                className="solar-income-card"
+                                key={item.label}
+                            >
                                 <div className="solar-income-head">
                                     {item.icon}
                                     <span>{item.label}</span>
                                 </div>
-                                <div className="solar-income-value">{item.value}</div>
+
+                                <div className="solar-income-value">
+                                    {item.value}
+                                </div>
                             </div>
                         ))}
                     </div>
@@ -700,7 +406,11 @@ export default function SolarCalculator() {
                             className="solar-cta"
                             type="button"
                             onClick={() => {
-                                setLeadStatus({ type: "", message: "" });
+                                setLeadStatus({
+                                    type: "",
+                                    message: "",
+                                });
+
                                 setIsLeadOpen(true);
                             }}
                         >
@@ -709,23 +419,35 @@ export default function SolarCalculator() {
                         </button>
                     </div>
 
-                    <div className="solar-formula">{t("solar.formula")}</div>
+                    <div className="solar-formula">
+                        {t("solar.formula")}
+                    </div>
                 </section>
             </div>
 
             {isLeadOpen && (
                 <div className="solar-backdrop">
-                    <form className="solar-modal" onSubmit={handleLeadSubmit}>
+                    <form
+                        className="solar-modal"
+                        onSubmit={handleLeadSubmit}
+                    >
                         <div className="solar-modal-head">
                             <div>
-                                <h2 className="solar-modal-title">{t("solar.modalTitle")}</h2>
-                                <p className="solar-modal-desc">{t("solar.modalDesc")}</p>
+                                <h2 className="solar-modal-title">
+                                    {t("solar.modalTitle")}
+                                </h2>
+
+                                <p className="solar-modal-desc">
+                                    {t("solar.modalDesc")}
+                                </p>
                             </div>
+
                             <button
                                 className="solar-close"
                                 type="button"
-                                aria-label="Close"
-                                onClick={() => setIsLeadOpen(false)}
+                                onClick={() =>
+                                    setIsLeadOpen(false)
+                                }
                             >
                                 <X size={18} />
                             </button>
@@ -735,7 +457,10 @@ export default function SolarCalculator() {
                             <div>
                                 <div className="solar-lead-grid">
                                     <div className="solar-field">
-                                        <label className="solar-label">{t("solar.name")}</label>
+                                        <label className="solar-label">
+                                            {t("solar.name")}
+                                        </label>
+
                                         <input
                                             className="solar-control"
                                             name="name"
@@ -744,8 +469,12 @@ export default function SolarCalculator() {
                                             required
                                         />
                                     </div>
+
                                     <div className="solar-field">
-                                        <label className="solar-label">{t("solar.phone")}</label>
+                                        <label className="solar-label">
+                                            {t("solar.phone")}
+                                        </label>
+
                                         <input
                                             className="solar-control"
                                             name="phone"
@@ -754,8 +483,12 @@ export default function SolarCalculator() {
                                             required
                                         />
                                     </div>
+
                                     <div className="solar-field full">
-                                        <label className="solar-label">{t("solar.email")}</label>
+                                        <label className="solar-label">
+                                            {t("solar.email")}
+                                        </label>
+
                                         <input
                                             className="solar-control"
                                             type="email"
@@ -765,8 +498,12 @@ export default function SolarCalculator() {
                                             required
                                         />
                                     </div>
+
                                     <div className="solar-field full">
-                                        <label className="solar-label">{t("solar.remark")}</label>
+                                        <label className="solar-label">
+                                            {t("solar.remark")}
+                                        </label>
+
                                         <textarea
                                             className="solar-control"
                                             name="note"
@@ -777,7 +514,9 @@ export default function SolarCalculator() {
                                 </div>
 
                                 {leadStatus.message && (
-                                    <div className={`solar-status ${leadStatus.type}`}>
+                                    <div
+                                        className={`solar-status ${leadStatus.type}`}
+                                    >
                                         {leadStatus.message}
                                     </div>
                                 )}
@@ -789,7 +528,10 @@ export default function SolarCalculator() {
                                         disabled={isSubmitting}
                                     >
                                         <Send size={17} />
-                                        {isSubmitting ? t("solar.submitting") : t("solar.submit")}
+
+                                        {isSubmitting
+                                            ? t("solar.submitting")
+                                            : t("solar.submit")}
                                     </button>
                                 </div>
                             </div>
@@ -799,15 +541,37 @@ export default function SolarCalculator() {
                                     <CalendarClock size={18} />
                                     {t("solar.summary")}
                                 </h3>
+
                                 {[
-                                    [t("solar.county"), county],
-                                    [t("solar.ping"), `${fmt(Number(ping), 0)} ${t("solar.units.ping")}`],
-                                    [t("solar.metrics.kw"), `${fmt(result.kw)} ${t("solar.units.kw")}`],
-                                    [t("solar.financeTitle"), `NT$ ${fmtInt(result.systemCost)}`],
-                                    [t("solar.income.year"), `NT$ ${fmt(result.annualIncome)}`],
-                                    [t("solar.payback"), `${fmt(result.payback)} ${t("solar.units.year")}`],
+                                    [
+                                        t("solar.county"),
+                                        county,
+                                    ],
+                                    [
+                                        t("solar.ping"),
+                                        `${fmt(Number(ping), 0)} ${t("solar.units.ping")}`,
+                                    ],
+                                    [
+                                        t("solar.metrics.kw"),
+                                        `${fmt(result.kw)} ${t("solar.units.kw")}`,
+                                    ],
+                                    [
+                                        t("solar.financeTitle"),
+                                        `NT$ ${fmtInt(result.systemCost)}`,
+                                    ],
+                                    [
+                                        t("solar.income.year"),
+                                        `NT$ ${fmt(result.annualIncome)}`,
+                                    ],
+                                    [
+                                        t("solar.payback"),
+                                        `${fmt(result.payback)} ${t("solar.units.year")}`,
+                                    ],
                                 ].map(([label, value]) => (
-                                    <div className="solar-summary-row" key={label}>
+                                    <div
+                                        className="solar-summary-row"
+                                        key={label}
+                                    >
                                         <span>{label}</span>
                                         <strong>{value}</strong>
                                     </div>

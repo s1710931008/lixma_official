@@ -53,7 +53,7 @@ export default function Nav() {
 
     return (
         <>
-            <AppBar position="static">
+            <AppBar position="sticky" sx={{ top: 0, zIndex: (theme) => theme.zIndex.drawer + 1 }}>
                 <Toolbar>
                     <Typography variant="h6" sx={{ flexGrow: 1 }}>
                         LIXMA
