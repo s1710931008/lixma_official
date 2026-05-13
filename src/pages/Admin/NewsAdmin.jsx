@@ -15,10 +15,10 @@ import { projectData as localProjectData } from "../../data/projectData";
 import { historyData as localHistoryData } from "../../data/historyData";
 import { adminFetch, clearAdminToken } from "../../utils/adminAuth";
 
-const API_BASE = "http://localhost:3000/api/admin/news";
-const MEDIA_API_BASE = "http://localhost:3000/api/admin/media";
-const PROJECT_API_BASE = "http://localhost:3000/api/admin/projects";
-const HISTORY_API_BASE = "http://localhost:3000/api/admin/history";
+const API_BASE = "/api/admin/news";
+const MEDIA_API_BASE = "/api/admin/media";
+const PROJECT_API_BASE = "/api/admin/projects";
+const HISTORY_API_BASE = "/api/admin/history";
 const PAGE_SIZE = 5;
 
 export default function NewsAdmin({ defaultTab = "news" }) {

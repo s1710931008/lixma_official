@@ -13,7 +13,7 @@ import MessageIcon from "@mui/icons-material/Message";
 
 import "./Contact.css";
 
-const MAIL_API = "http://localhost:3000/api/sedMail";
+const MAIL_API = "/api/sedMail";
 const MAIL_API_KEY = import.meta.env.VITE_MAIL_API_KEY || "";
 
 function createInitialForm(categories) {

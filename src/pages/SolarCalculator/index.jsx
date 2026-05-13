@@ -14,7 +14,7 @@ import {
     Zap,
 } from "lucide-react";
 
-const MAIL_API = "http://localhost:3000/api/sedMail";
+const MAIL_API = "/api/sedMail";
 const MAIL_API_KEY = import.meta.env.VITE_MAIL_API_KEY || "";
 
 const COUNTIES = [

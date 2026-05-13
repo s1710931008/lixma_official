@@ -10,7 +10,7 @@ import Typography from "@mui/material/Typography";
 import { mediaData as localMediaData } from "../../data/newsData";
 import { adminFetch } from "../../utils/adminAuth";
 
-const API_BASE = "http://localhost:3000/api/admin/media";
+const API_BASE = "/api/admin/media";
 
 const noDateAnimationSx = {
     "& .MuiInputBase-root, & .MuiInputBase-input, & .MuiInputLabel-root, & .MuiOutlinedInput-notchedOutline":

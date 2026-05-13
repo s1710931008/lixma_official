@@ -9,7 +9,7 @@ import TextField from "@mui/material/TextField";
 import Typography from "@mui/material/Typography";
 import { setAdminToken } from "../../utils/adminAuth";
 
-const LOGIN_API = "http://localhost:3000/api/admin/login";
+const LOGIN_API = "/api/admin/login";
 
 export default function AdminLogin() {
     const navigate = useNavigate();

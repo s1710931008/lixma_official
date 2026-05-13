@@ -9,7 +9,7 @@ import Typography from "@mui/material/Typography";
 import { projectData } from "../../data/projectData";
 import { adminFetch } from "../../utils/adminAuth";
 
-const API_BASE = "http://localhost:3000/api/admin/projects";
+const API_BASE = "/api/admin/projects";
 
 export default function ProjectAdmin() {
     const [items, setItems] = useState([]);

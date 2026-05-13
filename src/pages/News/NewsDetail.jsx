@@ -9,7 +9,7 @@ import "./NewsDetail.css";
 import { newsData } from "../../data/newsData";
 import AdminPreviewBack from "../../components/AdminPreviewBack";
 
-const API_BASE = "http://localhost:3000/api/news";
+const API_BASE = "/api/news";
 
 export default function NewsDetail() {
     const { t } = useTranslation();

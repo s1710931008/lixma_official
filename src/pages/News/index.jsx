@@ -8,8 +8,8 @@ import { useTranslation } from "react-i18next";
 import { mediaData, newsData } from "../../data/newsData";
 import "./News.css";
 
-const NEWS_API = "http://localhost:3000/api/news";
-const MEDIA_API = "http://localhost:3000/api/media";
+const NEWS_API = "/api/news";
+const MEDIA_API = "/api/media";
 
 function getItemYear(item) {
     return item.year || String(item.date || "").slice(0, 4);

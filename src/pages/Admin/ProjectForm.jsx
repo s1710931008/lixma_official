@@ -12,7 +12,7 @@ import { projectData } from "../../data/projectData";
 import { adminFetch } from "../../utils/adminAuth";
 import { resizeImageFile } from "../../utils/imageUpload";
 
-const API_BASE = "http://localhost:3000/api/admin/projects";
+const API_BASE = "/api/admin/projects";
 
 const emptyForm = {
     title: "",

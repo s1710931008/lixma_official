@@ -18,7 +18,7 @@ import "./About.css";
 import { historyData as localHistoryData } from "../../data/historyData";
 import AdminPreviewBack from "../../components/AdminPreviewBack";
 
-const HISTORY_API = "http://localhost:3000/api/history";
+const HISTORY_API = "/api/history";
 
 function Reveal({ children, delay = 0 }) {
     const ref = useRef(null);

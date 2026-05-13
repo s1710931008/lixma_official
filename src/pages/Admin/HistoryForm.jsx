@@ -10,7 +10,7 @@ import Typography from "@mui/material/Typography";
 import { historyData as localHistoryData } from "../../data/historyData";
 import { adminFetch } from "../../utils/adminAuth";
 
-const API_BASE = "http://localhost:3000/api/admin/history";
+const API_BASE = "/api/admin/history";
 
 const emptyForm = {
     year: "",
