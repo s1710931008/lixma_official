@@ -59,7 +59,8 @@ const serviceAssets = [
 
 export default function Home() {
     const { t } = useTranslation();
-    const services = t("home.services.items", { returnObjects: true });
+    const translatedServices = t("home.services.items", { returnObjects: true });
+    const services = Array.isArray(translatedServices) ? translatedServices : [];
 
     return (
         <Box className="home-page">
